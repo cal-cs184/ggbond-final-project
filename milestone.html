@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloth Volume Rendering Based on Ray Marching - Milestone Report</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #3498db;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .content-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .highlight {
+            background-color: #fffde7;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .team-members {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .team-member {
+            text-align: center;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cloth volume rendering based on Ray Marching</h1>
+        <p>Project Milestone Report</p>
+    </header>
+
+    <div class="content-section">
+        <h2>Project overview</h2>
+        <p>
+            Our project uses ray marching technology to implement volume rendering, expanding the visual effects of cloth simulation.
+            This method creates atmospheric effects around the cloth, giving it a cloud-like or smoky appearance, enhancing visual realism and artistic expression.
+        </p>
+        <div class="team-members">
+            <div class="team-member">
+                <p>member 1</p>
+            </div>
+            <div class="team-member">
+                <p>member 2</p>
+            </div>
+            <div class="team-member">
+                <p>member 3</p>
+            </div>
+            <div class="team-member">
+                <p>member 4</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Completed work</h2>
+        <ul>
+            <li>
+                <strong>Ray Marching shader implementation:</strong> Created a fragment shader that performs ray marching to render volume effects around the cloth.
+            </li>
+            <li>
+                <strong>Cloth particle position texture system:</strong> Implemented a texture-based system that transmits cloth particle positions to the shader, allowing volume effects to follow cloth motion.
+            </li>
+            <li>
+                <strong>Density field calculation:</strong> Developed an algorithm that calculates the density field based on cloth particle positions and influence radius.
+            </li>
+            <li>
+                <strong>Interactive parameter control:</strong> Added UI controls to adjust volume rendering parameters, such as height scaling.
+            </li>
+            <li>
+                <strong>Dynamic effects:</strong> Implemented rotation effects and noise-based variations to create a more natural and interesting volume appearance.
+            </li>
+        </ul>
+
+        <div class="code-block">
+            <pre>// The key function for density sampling in the ray marching shader
+float sampleDensity(vec3 pos) {
+    // Get 2D density from cloth projection onto xz-plane
+    float density_2d = calculate2DDensity(vec2(pos.x, pos.z));
+    
+    // Calculate vertical falloff based on height
+    float y_min = 0.0;  // Minimum height where density starts
+    float y_max = 2.0;  // Maximum height where density ends
+    float y_falloff = 1.0 - smoothstep(y_min, y_max, pos.y);
+    
+    // Combine 2D density with height falloff
+    float base_density = density_2d * y_falloff;
+    
+    // Add some noise for interesting effects
+    float time_factor = u_height_scaling * 10.0; // Use height scaling as time factor
+    float noise_val = noise(pos * 3.0 + vec3(0.0, time_factor * 0.1, time_factor * 0.2));
+    
+    // Create swirling effect
+    vec2 swirl = vec2(
+        sin(pos.y * 2.0 + time_factor * 0.2) * 0.5,
+        cos(pos.x * 2.0 + time_factor * 0.3) * 0.5
+    );
+    pos.xz += swirl * noise_val * base_density;
+    
+    // Final density calculation
+    float final_density = base_density * (0.7 + 0.3 * noise_val);
+    
+    return final_density * DENSITY_MULTIPLIER;
+}</pre>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Initial results</h2>
+        <p>
+            We have successfully implemented the core ray marching algorithm for creating volume effects around the cloth. The current implementation:
+        </p>
+        <ul>
+            <li>Creates cloud-like atmospheric effects around the cloth</li>
+            <li>Updates dynamically as the cloth moves and deforms</li>
+            <li>Enhances visual appeal with height-based color gradients</li>
+            <li>Integrates noise and swirling patterns for a more natural appearance</li>
+            <li>Allows parameter adjustments through UI</li>
+        </ul>
+        
+        <!-- <div class="image-container">
+            <p><em>Screenshots will be added in the final report</em></p>
+        </div> -->
+    </div>
+
+    <div class="content-section">
+        <h2>Progress reflection</h2>
+        <p>
+            Our project has made significant progress in implementing the core volume rendering technology. The ray marching algorithm is functioning properly, and we have successfully integrated it with the cloth simulation system. The main challenges we have encountered include:
+        </p>
+        <ul>
+            <li>
+                <strong>Performance optimization:</strong> Ray marching calculations are expensive, requiring careful optimization to maintain interactive frame rates.
+            </li>
+            <li>
+                <strong>Data transmission:</strong> Efficiently transmitting cloth particle positions to the shader requires implementing a custom texture-based method.
+            </li>
+            <li>
+                <strong>Visual quality:</strong> Balancing visual quality and performance is still a continuous challenge.
+            </li>
+        </ul>
+        <p>
+            Overall, we are satisfied with the current progress and have laid a solid foundation for the remaining work.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h2>Update work plan</h2>
+        <p>
+            For the remaining parts of the project, we plan to focus on the following areas:
+        </p>
+        <ol>
+            <li>
+                <strong>Ray marching optimization:</strong> Implement adaptive step size and early ray termination to improve performance.
+            </li>
+            <li>
+                <strong>Enhanced parameter control:</strong> Add more interactive controls for density, color, and effect radius.
+            </li>
+            <li>
+                <strong>Advanced lighting model:</strong> Implement a more complex lighting model, including scattering and absorption effects.
+            </li>
+            <li>
+                <strong>Surface-volume integration:</strong> Improve the blending between cloth surface and volume effects.
+            </li>
+            <li>
+                <strong>User experience:</strong> Create presets for different visual styles (smoke, clouds, magic effects).
+            </li>
+        </ol>
+    </div>
+
+    <div class="content-section">
+        <h2>Technical details</h2>
+        <h3>Ray marching implementation</h3>
+        <p>
+            Our ray marching algorithm works by stepping along the view ray and accumulating density and color. The key components include:
+        </p>
+        <ul>
+            <li>
+                <strong>Density field:</strong> Created by projecting cloth particles onto the xz-plane and calculating influence based on distance.
+            </li>
+            <li>
+                <strong>Adaptive step size:</strong> Adjusts step size based on view angle and local density for better performance.
+            </li>
+            <li>
+                <strong>Color gradient:</strong> Samples from color gradient based on density, height, and noise values.
+            </li>
+            <li>
+                <strong>Lighting interaction:</strong> Basic diffuse lighting with ambient and self-emissive components.
+            </li>
+        </ul>
+
+        <h3>Cloth integration</h3>
+        <p>
+            To integrate with cloth simulation:
+        </p>
+        <ul>
+            <li>
+                <strong>Particle position texture:</strong> We store cloth particle positions in a 2D texture that is updated every frame.
+            </li>
+            <li>
+                <strong>Texture size:</strong> The texture size matches the cloth resolution (width × height points).
+            </li>
+            <li>
+                <strong>Parameter passing:</strong> We pass the texture and control parameters as uniform variables to the shader.
+            </li>
+        </ul>
+    </div>
+
+</body>
+</html>

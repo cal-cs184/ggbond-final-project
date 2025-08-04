@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+# Sets the base style for formatting. The LLVM style is used here.
+IndentWidth: 4
+# Specifies the number of spaces used for indentation.
+ContinuationIndentWidth: 4
+# Sets the width of the continuation line indentation.
+PointerAlignment: Left
+# Aligns the pointer symbol to the left with the type (e.g., int* a).
+ColumnLimit: 120

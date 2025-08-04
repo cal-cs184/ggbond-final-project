@@ -11,26 +11,23 @@ using namespace CGL;
 class Halfedge;
 
 struct PointMass {
-  PointMass(Vector3D position, bool pinned)
-      : pinned(pinned), start_position(position), position(position),
-        last_position(position) {}
+    PointMass(Vector3D position, bool pinned)
+        : pinned(pinned), start_position(position), position(position), last_position(position) {}
 
-  Vector3D normal();
-  Vector3D velocity(double delta_t) {
-    return (position - last_position) / delta_t;
-  }
+    Vector3D normal();
+    Vector3D velocity(double delta_t) { return (position - last_position) / delta_t; }
 
-  // static values
-  bool pinned;
-  Vector3D start_position;
+    // static values
+    bool pinned;
+    Vector3D start_position;
 
-  // dynamic values
-  Vector3D position;
-  Vector3D last_position;
-  Vector3D forces;
+    // dynamic values
+    Vector3D position;
+    Vector3D last_position;
+    Vector3D forces;
 
-  // mesh reference
-  Halfedge *halfedge;
+    // mesh reference
+    Halfedge* halfedge;
 };
 
 #endif /* POINTMASS_H */

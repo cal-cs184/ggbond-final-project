@@ -37,10 +37,17 @@ void Cloth::buildGrid() {
     // Create point masses
     for (int j = 0; j < num_height_points; j++) {
         for (int i = 0; i < num_width_points; i++) {
-            // Calculate position
-            double x = i * width_step;
-            double y = 0;
-            double z = j * height_step;
+            // Calculate position based on orientation
+            double x, y, z;
+            if (orientation == HORIZONTAL) {
+                x = i * width_step;
+                y = 1.0; // Start above the sphere
+                z = j * height_step;
+            } else { // VERTICAL
+                x = i * width_step;
+                y = j * height_step;
+                z = 0;
+            }
             Vector3D position = Vector3D(x, y, z);
 
             // Check if point mass is pinned

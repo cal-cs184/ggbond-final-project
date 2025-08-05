@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Ray Marching Collision Detection for Cloth Simulation - Presentation
+      Slides General Process
+    </title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      .slide {
+        background-color: white;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 50px;
+        page-break-after: always;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      h2 {
+        color: #3498db;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+      h3 {
+        color: #2c3e50;
+      }
+      .code-block {
+        background-color: #f5f5f5;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+      }
+      .image-placeholder {
+        background-color: #eee;
+        border: 1px dashed #ccc;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+        font-style: italic;
+        color: #777;
+      }
+      .two-column {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+      }
+      .column {
+        width: 48%;
+      }
+      ul,
+      ol {
+        padding-left: 25px;
+      }
+      li {
+        margin-bottom: 10px;
+      }
+      .team-members {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin: 20px 0;
+      }
+      .team-member {
+        text-align: center;
+        width: 150px;
+      }
+      .comparison {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+      }
+      .comparison-item {
+        width: 48%;
+        text-align: center;
+      }
+      .script {
+        background-color: #f8f9fa;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin: 20px 0;
+        font-style: italic;
+        color: #555;
+      }
+      .speaker {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Slide 1: Title -->
+    <div class="slide">
+      <h1>Ray Marching Collision Detection for Cloth Simulation</h1>
+      <h2 style="text-align: center; border: none">Project Milestone</h2>
+      <div class="team-members">
+        <div class="team-member">
+          <p>member 1</p>
+        </div>
+        <div class="team-member">
+          <p>member 2</p>
+        </div>
+        <div class="team-member">
+          <p>member 3</p>
+        </div>
+        <div class="team-member">
+          <p>member 4</p>
+        </div>
+      </div>
+      <div class="image-placeholder">
+        [cloth with ray marching collision detection effect]
+      </div>
+
+      <div class="script">
+        <p>
+          <span class="speaker">member 1:</span> Hi! Our project is Ray Marching
+          Collision Detection for Cloth Simulation. Our goal is to replace
+          traditional triangle-based distance collision detection with Ray
+          Marching technology, using SDF or VDB to detect collisions between
+          cloth and objects like spheres.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 2: Implementation and Progress -->
+    <div class="slide">
+      <h2>Implementation and Progress</h2>
+      <div class="two-column">
+        <div class="column">
+          <h3>Completed Work</h3>
+          <ul>
+            <li>Implemented Ray Marching shader</li>
+            <li>Created cloth particle position texture system</li>
+            <li>Developed density field calculation algorithm</li>
+            <li>Integrated with HW4 cloth simulation platform</li>
+            <li>Added dynamic camera perspective support</li>
+          </ul>
+        </div>
+        <div class="column">
+          <div class="image-placeholder">
+            [current effect screenshot or code snippet]
+          </div>
+          <div class="code-block">
+            <pre>
+// Core Ray Marching implementation
+void main() {
+    // Convert UV to ray direction (camera-aware)
+    vec2 ndc = v_uv * 2.0 - 1.0;
+    vec4 clip = vec4(ndc, -1.0, 1.0);
+    vec4 world = u_inv_view_projection * clip;
+    world /= world.w;
+    vec3 ray_direction = normalize(world.xyz - u_cam_pos);
+    
+    // Ray marching loop for collision detection
+    vec3 ray_origin = u_cam_pos;
+    for (int i = 0; i < MAX_STEPS; i++) {
+        vec3 sample_pos = ray_origin + ray_direction * (i * STEP_SIZE);
+        float density = calculateDensity(sample_pos);
+        // Collision detection logic here
+    }
+}</pre
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="script">
+        <p>
+          <span class="speaker">member 2:</span> We have successfully
+          implemented the core Ray Marching shader that can handle dynamic
+          camera perspectives. The shader calculates density fields based on
+          cloth particle positions and is ready for collision detection. We've
+          also integrated it with the HW4 platform and added support for camera
+          movement.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 3: Effect Demonstration and Future Plan -->
+    <div class="slide">
+      <h2>Effect Demonstration and Future Plan</h2>
+      <div class="comparison">
+        <div class="comparison-item">
+          <div class="image-placeholder">
+            [traditional triangle-based collision detection]
+          </div>
+          <p>Traditional Triangle-based Collision Detection</p>
+        </div>
+        <div class="comparison-item">
+          <div class="image-placeholder">
+            [our ray marching collision detection method]
+          </div>
+          <p>Our Ray Marching Collision Detection Method</p>
+        </div>
+      </div>
+
+      <h3>Future Plan</h3>
+      <ul>
+        <li>Implement SDF/VDB for collision object representation</li>
+        <li>Develop Ray Marching-based collision detection algorithm</li>
+        <li>Create acceleration structures (octrees, BVH)</li>
+        <li>Performance comparison analysis with traditional methods</li>
+        <li>Support for dynamic collision objects</li>
+      </ul>
+
+      <div class="script">
+        <p>
+          <span class="speaker">member 3:</span> This shows the comparison
+          between traditional triangle-based collision detection and our Ray
+          Marching approach. The left shows the conventional method, while the
+          right demonstrates our Ray Marching collision detection that can
+          handle dynamic camera perspectives and provide more flexible collision
+          detection.
+        </p>
+        <p>
+          <span class="speaker">member 4:</span> In the next phase, we will
+          focus on implementing SDF/VDB representations for collision objects,
+          developing the actual collision detection algorithm using Ray
+          Marching, and creating acceleration structures to improve performance.
+          We also plan to conduct performance comparisons with traditional HW4
+          methods.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 4: Technical Challenges and Solutions -->
+    <div class="slide">
+      <h2>Technical Challenges and Solutions</h2>
+      <div class="two-column">
+        <div class="column">
+          <h3>Challenges</h3>
+          <ul>
+            <li>Camera movement affects ray directions</li>
+            <li>Performance optimization for real-time collision detection</li>
+            <li>Integration with existing HW4 framework</li>
+            <li>Acceleration structure implementation</li>
+            <li>FPS performance comparison analysis</li>
+          </ul>
+        </div>
+        <div class="column">
+          <h3>Solutions</h3>
+          <ul>
+            <li>Inverse view-projection matrix for correct ray calculation</li>
+            <li>Early exit mechanisms and optimized sampling</li>
+            <li>Texture-based particle position transmission</li>
+            <li>Spatial hashing and hierarchical structures</li>
+            <li>Comprehensive benchmarking framework</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="script">
+        <p>
+          <span class="speaker">member 2:</span> The main technical challenges
+          include handling camera movement effects on ray directions, optimizing
+          performance for real-time collision detection, and integrating with
+          the existing HW4 framework. We've addressed these through proper
+          matrix transformations, early exit mechanisms, and efficient data
+          transmission.
+        </p>
+      </div>
+    </div>
+
+    <!-- Video Script -->
+    <div
+      style="
+        margin-top: 50px;
+        padding: 20px;
+        background-color: #f0f8ff;
+        border: 1px solid #b0c4de;
+        border-radius: 5px;
+      "
+    >
+      <h2>One-minute Video Script</h2>
+      <p>
+        The following is a one-minute video script, with each member having a
+        speaking part:
+      </p>
+
+      <ol>
+        <li>
+          <strong>Opening (10 seconds)</strong>: member 1 introduces the project
+          name and concept
+        </li>
+        <li>
+          <strong>Project Goal (10 seconds)</strong>: member 1 explains the
+          project goal and significance of replacing traditional collision
+          detection
+        </li>
+        <li>
+          <strong>Technical Implementation (15 seconds)</strong>: member 2
+          explains Ray Marching and camera-aware collision detection
+        </li>
+        <li>
+          <strong>Current Progress (10 seconds)</strong>: member 2 shows the
+          completed functions and HW4 integration
+        </li>
+        <li>
+          <strong>Effect Demonstration (10 seconds)</strong>: member 3 shows the
+          comparison between traditional and Ray Marching methods
+        </li>
+        <li>
+          <strong>Future Plan (10 seconds)</strong>: member 4 introduces the
+          next work plan including SDF/VDB implementation
+        </li>
+        <li>
+          <strong>End (5 seconds)</strong>: member 4 summarizes and thanks
+        </li>
+      </ol>
+
+      <h3>Detailed Script:</h3>
+      <div class="script">
+        <p>
+          <strong>member 1 (0-20s):</strong> "Our project is Ray Marching
+          Collision Detection for Cloth Simulation. We aim to replace
+          traditional triangle-based distance collision detection with Ray
+          Marching technology, using SDF or VDB to detect collisions between
+          cloth and objects like spheres."
+        </p>
+
+        <p>
+          <strong>member 2 (20-35s):</strong> "We've implemented a Ray Marching
+          shader that handles dynamic camera perspectives using inverse
+          view-projection matrices. The shader calculates density fields from
+          cloth particle positions and is integrated with the HW4 platform."
+        </p>
+
+        <p>
+          <strong>member 2 (35-45s):</strong> "Current achievements include
+          successful HW4 integration, dynamic camera support, and real-time
+          particle position transmission through texture systems."
+        </p>
+
+        <p>
+          <strong>member 3 (45-55s):</strong> "Here's the comparison:
+          traditional triangle-based collision detection versus our Ray Marching
+          approach. Our method provides more flexible collision detection that
+          adapts to camera movement."
+        </p>
+
+        <p>
+          <strong>member 4 (55-65s):</strong> "Next, we'll implement SDF/VDB
+          representations, develop the collision detection algorithm, create
+          acceleration structures, and conduct performance comparisons with
+          traditional methods."
+        </p>
+
+        <p>
+          <strong>member 4 (65-70s):</strong> "Thank you for your attention to
+          our Ray Marching collision detection project!"
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

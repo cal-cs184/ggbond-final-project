@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Ray Marching Collision Detection for Cloth Simulation - Milestone Report
+    </title>
+    <style>
+      body {
+        font-family: "Microsoft YaHei", "微软雅黑", "Segoe UI", Tahoma, Geneva,
+          Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      header {
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid #3498db;
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+      h2 {
+        color: #3498db;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+        margin-top: 30px;
+      }
+      .content-section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+      .image-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+      img {
+        max-width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .code-block {
+        background-color: #f5f5f5;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+      }
+      .highlight {
+        background-color: #fffde7;
+        padding: 2px 5px;
+        border-radius: 3px;
+      }
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #7f8c8d;
+        font-size: 0.9em;
+      }
+      .team-members {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .team-member {
+        text-align: center;
+        width: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Ray Marching Collision Detection for Cloth Simulation</h1>
+      <p>Project Milestone Report</p>
+    </header>
+
+    <div class="content-section">
+      <h2>Project overview</h2>
+      <p>
+        我们的项目目标是使用光线行进（Ray
+        Marching）技术来替代传统的基于三角形距离的碰撞检测方法。
+        当布料与碰撞物体（如球体）接触时，我们使用Ray Marching方法通过VDB（Voxel
+        Distance Field）或SDF（Signed Distance Field）
+        来检测碰撞，而不是依赖网格几何。这种方法需要考虑相机移动对光线方向的影响，并实现加速结构来提高性能。
+        与传统的HW4方法相比，Ray Marching在FPS性能上会有差异。
+      </p>
+      <div class="team-members">
+        <div class="team-member">
+          <p>member 1</p>
+        </div>
+        <div class="team-member">
+          <p>member 2</p>
+        </div>
+        <div class="team-member">
+          <p>member 3</p>
+        </div>
+        <div class="team-member">
+          <p>member 4</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>Completed work</h2>
+      <ul>
+        <li>
+          <strong>Ray Marching shader实现：</strong>
+          完成了基于光线行进的体积渲染shader，能够处理动态相机视角变化。
+        </li>
+        <li>
+          <strong>HW4平台集成：</strong>
+          成功将Ray Marching
+          shader集成到HW4的布料模拟平台中，实现了基础的体积渲染效果。
+        </li>
+        <li>
+          <strong>动态视角支持：</strong>
+          实现了对相机移动的支持，可以看到转动视角时产生的不同光影效果。
+        </li>
+        <li>
+          <strong>布料粒子纹理系统：</strong>
+          建立了高效的纹理系统，将布料粒子位置实时传输到shader中。
+        </li>
+        <li>
+          <strong>体积渲染基础：</strong>
+          实现了基础的体积渲染方程，为后续的碰撞检测奠定基础。
+        </li>
+      </ul>
+
+      <div class="code-block">
+        <pre>
+// 当前实现的Ray Marching shader核心部分
+void main() {
+    // 将UV坐标转换为正确的光线方向（考虑相机移动）
+    vec2 ndc = v_uv * 2.0 - 1.0;
+    vec4 clip = vec4(ndc, -1.0, 1.0);
+    vec4 world = u_inv_view_projection * clip;
+    world /= world.w;
+    vec3 ray_direction = normalize(world.xyz - u_cam_pos);
+    
+    // 光线行进循环
+    vec3 ray_origin = u_cam_pos;
+    vec3 color = vec3(0.0);
+    float transmittance = 1.0;
+    
+    for (int i = 0; i < MAX_STEPS; i++) {
+        vec3 sample_pos = ray_origin + ray_direction * (i * STEP_SIZE);
+        
+        // 计算密度场（为后续碰撞检测做准备）
+        float density = calculateDensity(sample_pos);
+        
+        if (density > 0.05) {
+            // 体积渲染计算
+            vec3 light_dir = normalize(u_light_pos - sample_pos);
+            float diffuse = max(0.0, dot(normalize(vec3(0, 1, 0)), light_dir));
+            vec3 sample_color = vec3(0.2, 0.6, 0.9) * (0.3 + 0.7 * diffuse) * density;
+            
+            color += sample_color * transmittance * STEP_SIZE;
+            transmittance *= (1.0 - density * 0.15);
+        }
+    }
+    
+    out_color = vec4(mix(background, color, 1.0 - transmittance), 1.0);
+}</pre
+        >
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>Initial results</h2>
+      <p>我们已经成功实现了Ray Marching的基础框架，当前成果包括：</p>
+      <ul>
+        <li>Ray Marching shader能够正确响应相机视角变化</li>
+        <li>成功集成到HW4布料模拟平台中</li>
+        <li>实现了基础的体积渲染效果</li>
+        <li>可以看到转动视角时的动态光影变化</li>
+        <li>建立了布料粒子位置的数据传输机制</li>
+      </ul>
+
+      <!-- <div class="image-container">
+        <p><em>Screenshots will be added in the final report</em></p>
+      </div> -->
+    </div>
+
+    <div class="content-section">
+      <h2>Progress reflection</h2>
+      <p>
+        我们的项目在Ray
+        Marching技术的基础实现方面取得了良好进展。当前阶段主要专注于建立技术基础，
+        为后续的碰撞检测功能做准备。主要挑战包括：
+      </p>
+      <ul>
+        <li>
+          <strong>相机移动处理：</strong>
+          确保Ray
+          Marching能够正确处理动态相机视角，光线方向计算需要考虑相机位置变化。
+        </li>
+        <li>
+          <strong>性能优化：</strong>
+          Ray Marching计算开销较大，需要为后续的碰撞检测实现优化策略。
+        </li>
+        <li>
+          <strong>平台集成：</strong>
+          将Ray Marching技术成功集成到现有的HW4布料模拟框架中。
+        </li>
+        <li>
+          <strong>数据流管理：</strong>
+          建立高效的布料粒子位置数据传输机制。
+        </li>
+      </ul>
+      <p>当前进展为后续实现基于Ray Marching的碰撞检测奠定了坚实基础。</p>
+    </div>
+
+    <div class="content-section">
+      <h2>Update work plan</h2>
+      <p>对于项目的核心目标实现，我们计划专注于以下领域：</p>
+      <ol>
+        <li>
+          <strong>SDF/VDB实现：</strong>
+          实现有向距离场（SDF）或体素距离场（VDB）来表示碰撞物体的体积。
+        </li>
+        <li>
+          <strong>碰撞检测算法：</strong>
+          基于Ray
+          Marching实现布料与球体等物体的碰撞检测，替代传统的三角形距离检测。
+        </li>
+        <li>
+          <strong>加速结构：</strong>
+          实现空间加速结构（如八叉树、BVH等）来提高Ray Marching碰撞检测的性能。
+        </li>
+        <li>
+          <strong>性能对比分析：</strong>
+          对比Ray Marching方法与传统HW4方法在FPS性能上的差异。
+        </li>
+        <li>
+          <strong>动态物体支持：</strong>
+          扩展系统以支持动态移动的碰撞物体。
+        </li>
+      </ol>
+    </div>
+
+    <div class="content-section">
+      <h2>Technical details</h2>
+      <h3>当前Ray Marching实现</h3>
+      <p>我们当前的Ray Marching实现为后续的碰撞检测奠定了基础：</p>
+      <ul>
+        <li>
+          <strong>动态光线方向：</strong>
+          使用逆视图投影矩阵计算正确的光线方向，支持相机移动。
+        </li>
+        <li>
+          <strong>密度场计算：</strong>
+          基于布料粒子位置计算3D密度场，为碰撞检测提供基础。
+        </li>
+        <li>
+          <strong>体积渲染：</strong>
+          实现基础的体积渲染方程，展示Ray Marching的视觉效果。
+        </li>
+        <li>
+          <strong>性能优化：</strong>
+          实现早期退出机制，为后续碰撞检测的性能优化做准备。
+        </li>
+      </ul>
+
+      <h3>密度场计算</h3>
+      <p>当前密度场计算为后续SDF碰撞检测提供基础：</p>
+      <div class="code-block">
+        <pre>
+float calculateDensity(vec3 pos) {
+    float density = 0.0;
+    int samples = 0;
+    
+    // 采样布料粒子位置
+    for (int i = 0; i < u_cloth_tex_width && samples < 16; i += 3) {
+        for (int j = 0; j < u_cloth_tex_height && samples < 16; j += 3) {
+            samples++;
+            
+            // 从纹理获取粒子位置
+            float u = (float(i) + 0.5) / float(u_cloth_tex_width);
+            float v = (float(j) + 0.5) / float(u_cloth_tex_height);
+            vec3 particle_pos = texture(u_cloth_particles_tex, vec2(u, v)).xyz;
+            
+            // 计算距离和密度贡献
+            float dist = length(pos - particle_pos);
+            if (dist < 1.2) {
+                float falloff = 1.0 - dist / 1.2;
+                density += falloff * 0.4;
+                
+                if (density > 0.8) break;
+            }
+        }
+        if (density > 0.8) break;
+    }
+    
+    return min(density, 1.0);
+}</pre
+        >
+      </div>
+
+      <h3>HW4平台集成</h3>
+      <p>与HW4布料模拟的集成：</p>
+      <ul>
+        <li>
+          <strong>纹理系统：</strong>
+          将布料粒子位置存储在2D纹理中，每帧更新。
+        </li>
+        <li>
+          <strong>shader集成：</strong>
+          将Ray Marching shader集成到现有的渲染管线中。
+        </li>
+        <li>
+          <strong>相机支持：</strong>
+          正确处理动态相机视角对Ray Marching的影响。
+        </li>
+        <li>
+          <strong>性能监控：</strong>
+          为后续性能对比分析建立基础。
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

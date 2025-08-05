@@ -7,6 +7,72 @@
       Ray Marching Collision Detection for Cloth Simulation - Milestone Report
     </title>
     <style>
+      @media print {
+        body {
+          font-size: 10pt;
+          line-height: 1.3;
+          margin: 0;
+          padding: 10px;
+          background-color: white;
+        }
+        .content-section {
+          margin-bottom: 15px;
+          padding: 10px;
+          box-shadow: none;
+          border: 1px solid #ccc;
+          page-break-inside: avoid;
+        }
+        h1 {
+          font-size: 16pt;
+          margin-bottom: 5px;
+        }
+        h2 {
+          font-size: 12pt;
+          margin-top: 15px;
+          margin-bottom: 5px;
+        }
+        h3 {
+          font-size: 11pt;
+          margin-top: 10px;
+          margin-bottom: 3px;
+        }
+        p {
+          margin: 5px 0;
+        }
+        ul,
+        ol {
+          margin: 5px 0;
+          padding-left: 20px;
+        }
+        li {
+          margin: 2px 0;
+        }
+        .code-block {
+          font-size: 8pt;
+          padding: 8px;
+          margin: 8px 0;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+        .team-members {
+          gap: 10px;
+          margin: 10px 0;
+        }
+        .team-member {
+          width: 100px;
+          font-size: 9pt;
+        }
+        header {
+          padding: 10px 0;
+          margin-bottom: 15px;
+        }
+        footer {
+          margin-top: 20px;
+          padding: 10px;
+          font-size: 8pt;
+        }
+      }
+
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
@@ -32,6 +98,10 @@
         padding-bottom: 5px;
         margin-top: 30px;
       }
+      h3 {
+        color: #2980b9;
+        margin-top: 20px;
+      }
       .content-section {
         background-color: white;
         padding: 20px;
@@ -55,6 +125,9 @@
         margin: 20px 0;
         overflow-x: auto;
         font-family: "Courier New", monospace;
+        font-size: 11px;
+        max-height: 300px;
+        overflow-y: auto;
       }
       .highlight {
         background-color: #fffde7;
@@ -79,6 +152,17 @@
         text-align: center;
         width: 150px;
       }
+      ul,
+      ol {
+        margin: 10px 0;
+        padding-left: 25px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      p {
+        margin: 10px 0;
+      }
     </style>
   </head>
   <body>
@@ -90,86 +174,98 @@
     <div class="content-section">
       <h2>Project Overview</h2>
       <p>
-        Our project aims to use Ray Marching technology to replace traditional
-        triangle-based distance collision detection methods. When cloth
-        interacts with collision objects (such as spheres), we use Ray Marching
-        through VDB (Voxel Distance Field) or SDF (Signed Distance Field) to
-        detect collisions, rather than relying on mesh geometry. This approach
-        requires consideration of camera movement effects on ray directions and
-        implementation of acceleration structures to improve performance.
-        Compared to traditional HW4 methods, Ray Marching will show differences
-        in FPS performance.
+        Use Ray Marching technology to replace traditional triangle-based
+        collision detection. When cloth interacts with collision objects
+        (spheres), we use Ray Marching through VDB (Voxel Distance Field) or SDF
+        (Signed Distance Field) instead of mesh geometry. This approach
+        considers camera movement effects on ray directions and implements
+        acceleration structures for performance. Compared to traditional HW4
+        methods, Ray Marching will show FPS performance differences.
       </p>
       <div class="team-members">
         <div class="team-member">
-          <p>member 1</p>
+          <p>Isaac Gonzalez</p>
         </div>
         <div class="team-member">
-          <p>member 2</p>
+          <p>Buqi Liao</p>
         </div>
         <div class="team-member">
-          <p>member 3</p>
+          <p>Alan Wang</p>
         </div>
         <div class="team-member">
-          <p>member 4</p>
+          <p>HeLin Zhou</p>
         </div>
       </div>
+    </div>
+
+    <div class="content-section">
+      <h2>Additional Resources</h2>
+      <ul>
+        <li>
+          <strong>Demo Video:</strong>
+          <a
+            href="https://drive.google.com/file/d/1YhB-dxSzpF630Pa4fKCaC5DrERQx7h-Q/view?usp=sharing"
+            target="_blank"
+          >
+            Ray Marching Cloth Simulation Demo
+          </a>
+        </li>
+        <li>
+          <strong>Presentation Slides:</strong>
+          <a
+            href="https://docs.google.com/presentation/d/1k-vzXcmL6GHqnAgVbj-C6vY1j9FQrrka/edit?usp=sharing&ouid=103601152665338938482&rtpof=true&sd=true"
+            target="_blank"
+          >
+            Project Milestone Presentation
+          </a>
+        </li>
+      </ul>
     </div>
 
     <div class="content-section">
       <h2>Completed Work</h2>
       <ul>
         <li>
-          <strong>Ray Marching Shader Implementation:</strong>
-          Completed a volume rendering shader based on ray marching that can
-          handle dynamic camera perspective changes.
+          <strong>Ray Marching Shader:</strong> Volume rendering shader with
+          dynamic camera perspective support
         </li>
         <li>
-          <strong>HW4 Platform Integration:</strong>
-          Successfully integrated the Ray Marching shader into the HW4 cloth
-          simulation platform, achieving basic volume rendering effects.
+          <strong>HW4 Integration:</strong> Successfully integrated into cloth
+          simulation platform
         </li>
         <li>
-          <strong>Dynamic Perspective Support:</strong>
-          Implemented support for camera movement, allowing observation of
-          different lighting effects when rotating the view.
+          <strong>Dynamic Perspective:</strong> Camera movement support with
+          lighting effects
         </li>
         <li>
-          <strong>Cloth Particle Texture System:</strong>
-          Established an efficient texture system that transmits cloth particle
-          positions to the shader in real-time.
+          <strong>Texture System:</strong> Real-time cloth particle position
+          transmission
         </li>
         <li>
-          <strong>Volume Rendering Foundation:</strong>
-          Implemented basic volume rendering equations, laying the groundwork
-          for subsequent collision detection.
+          <strong>Volume Rendering:</strong> Basic equations foundation for
+          collision detection
         </li>
       </ul>
 
       <div class="code-block">
         <pre>
-// Core part of the current Ray Marching shader implementation
+// Ray Marching shader core implementation
 void main() {
-    // Convert UV coordinates to correct ray direction (considering camera movement)
     vec2 ndc = v_uv * 2.0 - 1.0;
     vec4 clip = vec4(ndc, -1.0, 1.0);
     vec4 world = u_inv_view_projection * clip;
     world /= world.w;
     vec3 ray_direction = normalize(world.xyz - u_cam_pos);
     
-    // Ray marching loop
     vec3 ray_origin = u_cam_pos;
     vec3 color = vec3(0.0);
     float transmittance = 1.0;
     
     for (int i = 0; i < MAX_STEPS; i++) {
         vec3 sample_pos = ray_origin + ray_direction * (i * STEP_SIZE);
-        
-        // Calculate density field (preparing for subsequent collision detection)
         float density = calculateDensity(sample_pos);
         
         if (density > 0.05) {
-            // Volume rendering calculation
             vec3 light_dir = normalize(u_light_pos - sample_pos);
             float diffuse = max(0.0, dot(normalize(vec3(0, 1, 0)), light_dir));
             vec3 sample_color = vec3(0.2, 0.6, 0.9) * (0.3 + 0.7 * diffuse) * density;
@@ -187,95 +283,63 @@ void main() {
 
     <div class="content-section">
       <h2>Initial Results</h2>
-      <p>
-        We have successfully implemented the basic framework for Ray Marching,
-        with current achievements including:
-      </p>
       <ul>
-        <li>
-          Ray Marching shader correctly responds to camera perspective changes
-        </li>
-        <li>Successfully integrated into the HW4 cloth simulation platform</li>
+        <li>Ray Marching shader responds to camera perspective changes</li>
+        <li>Successfully integrated into HW4 cloth simulation platform</li>
         <li>Achieved basic volume rendering effects</li>
-        <li>Can observe dynamic lighting changes when rotating the view</li>
-        <li>
-          Established data transmission mechanism for cloth particle positions
-        </li>
+        <li>Dynamic lighting changes when rotating view</li>
+        <li>Established cloth particle position data transmission</li>
       </ul>
-
-      <!-- <div class="image-container">
-        <p><em>Screenshots will be added in the final report</em></p>
-      </div> -->
     </div>
 
     <div class="content-section">
       <h2>Progress Reflection</h2>
-      <p>
-        Our project has made good progress in the basic implementation of Ray
-        Marching technology. The current phase focuses on establishing technical
-        foundations and preparing for subsequent collision detection
-        functionality. Main challenges include:
-      </p>
+      <p>Good progress in Ray Marching implementation. Main challenges:</p>
       <ul>
         <li>
-          <strong>Camera Movement Handling:</strong>
-          Ensuring Ray Marching can correctly handle dynamic camera
-          perspectives, with ray direction calculations considering camera
-          position changes.
+          <strong>Camera Movement:</strong> Dynamic camera perspective handling
+          with ray direction calculations
         </li>
         <li>
-          <strong>Performance Optimization:</strong>
-          Ray Marching calculations are computationally expensive, requiring
-          optimization strategies for subsequent collision detection.
+          <strong>Performance:</strong> Computational optimization for collision
+          detection
         </li>
         <li>
-          <strong>Platform Integration:</strong>
-          Successfully integrating Ray Marching technology into the existing HW4
-          cloth simulation framework.
+          <strong>Integration:</strong> Successfully integrated into HW4 cloth
+          simulation framework
         </li>
         <li>
-          <strong>Data Flow Management:</strong>
-          Establishing efficient data transmission mechanisms for cloth particle
-          positions.
+          <strong>Data Flow:</strong> Efficient cloth particle position
+          transmission mechanisms
         </li>
       </ul>
       <p>
-        Current progress has laid a solid foundation for subsequent
-        implementation of Ray Marching-based collision detection.
+        Current progress provides solid foundation for Ray Marching-based
+        collision detection.
       </p>
     </div>
 
     <div class="content-section">
       <h2>Updated Work Plan</h2>
-      <p>
-        For the core goal implementation of the project, we plan to focus on the
-        following areas:
-      </p>
       <ol>
         <li>
-          <strong>SDF/VDB Implementation:</strong>
-          Implement Signed Distance Fields (SDF) or Voxel Distance Fields (VDB)
-          to represent collision object volumes.
+          <strong>SDF/VDB Implementation:</strong> Signed Distance Fields or
+          Voxel Distance Fields for collision objects
         </li>
         <li>
-          <strong>Collision Detection Algorithm:</strong>
-          Implement Ray Marching-based collision detection between cloth and
-          objects like spheres, replacing traditional triangle distance
-          detection.
+          <strong>Collision Detection:</strong> Ray Marching-based detection
+          replacing traditional triangle methods
         </li>
         <li>
-          <strong>Acceleration Structures:</strong>
-          Implement spatial acceleration structures (such as octrees, BVH, etc.)
-          to improve Ray Marching collision detection performance.
+          <strong>Acceleration Structures:</strong> Spatial structures (octrees,
+          BVH) for performance improvement
         </li>
         <li>
-          <strong>Performance Comparison Analysis:</strong>
-          Compare FPS performance differences between Ray Marching methods and
-          traditional HW4 methods.
+          <strong>Performance Analysis:</strong> FPS comparison between Ray
+          Marching and traditional HW4 methods
         </li>
         <li>
-          <strong>Dynamic Object Support:</strong>
-          Extend the system to support dynamically moving collision objects.
+          <strong>Dynamic Objects:</strong> Support for moving collision objects
         </li>
       </ol>
     </div>
@@ -283,89 +347,71 @@ void main() {
     <div class="content-section">
       <h2>Technical Details</h2>
       <h3>Current Ray Marching Implementation</h3>
-      <p>
-        Our current Ray Marching implementation lays the foundation for
-        subsequent collision detection:
-      </p>
       <ul>
         <li>
-          <strong>Dynamic Ray Direction:</strong>
-          Use inverse view-projection matrix to calculate correct ray
-          directions, supporting camera movement.
+          <strong>Dynamic Ray Direction:</strong> Inverse view-projection matrix
+          for camera movement support
         </li>
         <li>
-          <strong>Density Field Calculation:</strong>
-          Calculate 3D density fields based on cloth particle positions,
-          providing foundation for collision detection.
+          <strong>Density Field:</strong> 3D density fields from cloth particle
+          positions
         </li>
         <li>
-          <strong>Volume Rendering:</strong>
-          Implement basic volume rendering equations, demonstrating Ray Marching
-          visual effects.
+          <strong>Volume Rendering:</strong> Basic equations demonstrating Ray
+          Marching effects
         </li>
         <li>
-          <strong>Performance Optimization:</strong>
-          Implement early exit mechanisms, preparing for performance
-          optimization of subsequent collision detection.
+          <strong>Performance:</strong> Early exit mechanisms for collision
+          detection optimization
         </li>
       </ul>
 
       <h3>Density Field Calculation</h3>
-      <p>
-        Current density field calculation provides foundation for subsequent SDF
-        collision detection:
-      </p>
+      <p>Foundation for subsequent SDF collision detection:</p>
       <div class="code-block">
         <pre>
 float calculateDensity(vec3 pos) {
     float density = 0.0;
     int samples = 0;
     
-    // Sample cloth particle positions
     for (int i = 0; i < u_cloth_tex_width && samples < 16; i += 3) {
         for (int j = 0; j < u_cloth_tex_height && samples < 16; j += 3) {
             samples++;
-            
-            // Get particle position from texture
             float u = (float(i) + 0.5) / float(u_cloth_tex_width);
             float v = (float(j) + 0.5) / float(u_cloth_tex_height);
             vec3 particle_pos = texture(u_cloth_particles_tex, vec2(u, v)).xyz;
             
-            // Calculate distance and density contribution
             float dist = length(pos - particle_pos);
             if (dist < 1.2) {
                 float falloff = 1.0 - dist / 1.2;
                 density += falloff * 0.4;
-                
                 if (density > 0.8) break;
             }
         }
         if (density > 0.8) break;
     }
-    
     return min(density, 1.0);
 }</pre
         >
       </div>
 
       <h3>HW4 Platform Integration</h3>
-      <p>Integration with HW4 cloth simulation:</p>
       <ul>
         <li>
-          <strong>Texture System:</strong>
-          Store cloth particle positions in 2D textures, updated every frame.
+          <strong>Texture System:</strong> 2D textures for cloth particle
+          positions, updated per frame
         </li>
         <li>
-          <strong>Shader Integration:</strong>
-          Integrate Ray Marching shader into existing rendering pipeline.
+          <strong>Shader Integration:</strong> Ray Marching shader in existing
+          rendering pipeline
         </li>
         <li>
-          <strong>Camera Support:</strong>
-          Correctly handle dynamic camera perspective effects on Ray Marching.
+          <strong>Camera Support:</strong> Dynamic camera perspective effects
+          handling
         </li>
         <li>
-          <strong>Performance Monitoring:</strong>
-          Establish foundation for subsequent performance comparison analysis.
+          <strong>Performance Monitoring:</strong> Foundation for performance
+          comparison analysis
         </li>
       </ul>
     </div>

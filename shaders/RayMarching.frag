@@ -42,7 +42,7 @@ const float DENSITY_MULTIPLIER       = 0.2;
 const float ABSORPTION               = 0.3;
 const float PARTICLE_INFLUENCE_RADIUS = 0.8;
 const float STEP_SIZE                = 0.06; // Larger step for performance, acceptable quality
-const float GRID_SIZE                = 0.1;
+const float GRID_SIZE                = 0.05;
 
 // Simplified noise function
 float hash(float n) {
@@ -97,15 +97,18 @@ float calculateDensity(vec3 pos) {
     return min(density * 0.3, 1.0);
 }
 
-// Simplified color calculation
+// Enhanced volume color with rich gradients
 vec3 getVolumeColor(float density, float height) {
-    // Use vibrant gradient colors
-    vec3 color1 = mix(vec3(0.2, 0.1, 0.8), vec3(0.8, 0.2, 1.0), density);
-    vec3 color2 = mix(vec3(0.8, 0.3, 0.6), vec3(1.0, 0.7, 0.2), density);
-    vec3 color  = mix(color1, color2, height);
-
-    // Slightly reduce overall brightness
-    return color * (0.6 + 0.2 * density);
+    // Rich color palette based on density and height
+    vec3 lowDensity = mix(vec3(0.1, 0.3, 0.8), vec3(0.8, 0.2, 0.9), height);
+    vec3 highDensity = mix(vec3(0.2, 0.8, 0.6), vec3(0.9, 0.7, 0.3), height);
+    vec3 color = mix(lowDensity, highDensity, density);
+    
+    // Add subtle noise for texture variation
+    float noise = fract(sin(dot(vec2(height, density), vec2(12.9898, 78.233))) * 43758.5453);
+    color += noise * 0.1;
+    
+    return color * (0.6 + 0.4 * density);
 }
 
 // Simplified ray marching
@@ -114,21 +117,21 @@ vec4 rayMarch(vec3 ro, vec3 rd) {
     vec3  color         = vec3(0.0);
     float transmittance = 1.0;
 
-    // Early exit if the ray points upward above the volume
-    if (rd.y > 0.0 && ro.y > 2.0) {
-        return vec4(0.0, 0.0, 0.0, 0.0);
-    }
+    // // Early exit if the ray points upward above the volume
+    // if (rd.y > 0.0 && ro.y > 2.0) {
+    //     return vec4(0.0, 0.0, 0.0, 0.0);
+    // }
 
     for (int i = 0; i < MAX_STEPS; i++) {
-        if (t > MAX_DIST || transmittance < 0.1) break;
+        // if (t > MAX_DIST || transmittance < 0.1) break;
 
         vec3 pos = ro + rd * t;
 
-        if (pos.y < 0.0 || pos.y > 2.0) break;
+        // if (pos.y < 0.0 || pos.y > 2.0) break;
 
         float density = calculateDensity(pos);
 
-        if (density > EPSILON) {
+        // if (density > EPSILON) {
             // Simplified lighting
             vec3  light_dir = normalize(u_light_pos - pos);
             float diffuse   = max(0.0, dot(v_normal.xyz, light_dir));
@@ -145,7 +148,7 @@ vec4 rayMarch(vec3 ro, vec3 rd) {
 
             color += sample_color * transmittance;
             transmittance *= exp(-density * ABSORPTION);
-        }
+        // }
 
         t += STEP_SIZE;
     }
@@ -164,14 +167,24 @@ void main() {
     surface_color.rgb += v_normal.xyz * 0.2;
 
     // Better blending between surface and volume
-    out_color = mix(surface_color, volume_color, volume_color.a * 0.7);
+    // out_color = mix(surface_color, volume_color, 0.8); // Fixed blend weight
 
-    // Add environment reflection
-    vec3 reflection = reflect(rd, normalize(v_normal.xyz));
-    vec4 env_color  = texture(u_texture_cubemap, reflection);
-    out_color = mix(out_color, env_color, 0.1 * (1.0 - volume_color.a));
+    // // Add environment reflection
+    // vec3 reflection = reflect(rd, normalize(v_normal.xyz));
+    // vec4 env_color  = texture(u_texture_cubemap, reflection);
+    // out_color = mix(out_color, env_color, 0.1 * (1.0 - volume_color.a));
 
     // Ensure reasonable opacity
     // out_color.a = max(1.0, volume_color.a);
-    out_color.a = clamp(volume_color.a, 0.0, 1.0);
+    // out_color.a = clamp(volume_color.a, 0.3, 1.0);
+
+    // Enhanced final output with better volume effect
+    if (volume_color.a < 0.01) {
+        // Fallback to surface color for empty areas
+        out_color = surface_color;
+    } else {
+        // Rich volume rendering with proper alpha
+        out_color = volume_color;
+        out_color.a = clamp(volume_color.a, 0.2, 0.9); // Semi-transparent volume
+    }
 }

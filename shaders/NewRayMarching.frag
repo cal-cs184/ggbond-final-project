@@ -4,6 +4,9 @@ uniform vec3 u_cam_pos;
 uniform vec3 u_light_pos;
 uniform vec3 u_light_intensity;
 
+// Inverse of view-projection matrix for correct ray direction
+uniform mat4 u_inv_view_projection;
+
 uniform sampler2D u_texture_1;
 
 // Cloth particles texture for dynamic density calculation
@@ -53,7 +56,11 @@ float calculateDensity(vec3 pos) {
 void main() {
     // TRUE RAY MARCHING: Convert UV to ray direction
     vec2 ndc = v_uv * 2.0 - 1.0;
-    vec3 ray_direction = normalize(vec3(ndc.x, ndc.y, -1.0));
+    // Transform NDC to world space to obtain correct ray direction
+    vec4 clip = vec4(ndc, -1.0, 1.0);
+    vec4 world = u_inv_view_projection * clip;
+    world /= world.w;
+    vec3 ray_direction = normalize(world.xyz - u_cam_pos);
     
     // Ray marching from camera position
     vec3 ray_origin = u_cam_pos;

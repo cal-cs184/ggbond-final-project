@@ -371,6 +371,9 @@ void ClothSimulator::drawContents() {
         // Set uniforms for volume rendering
         shader.setUniform("u_model", model, false);
         shader.setUniform("u_view_projection", viewProjection, false);
+        // Pass inverse view-projection for correct ray directions in volume rendering
+        Matrix4f invViewProjection = viewProjection.inverse();
+        shader.setUniform("u_inv_view_projection", invViewProjection, false);
         shader.setUniform("u_cam_pos", Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), false);
         shader.setUniform("u_light_pos", Vector3f(0.5, 2, 2), false);
         shader.setUniform("u_light_intensity", Vector3f(3, 3, 3), false);

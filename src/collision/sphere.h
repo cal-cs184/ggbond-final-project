@@ -1,7 +1,6 @@
 #ifndef COLLISIONOBJECT_SPHERE_H
 #define COLLISIONOBJECT_SPHERE_H
 
-#include "../clothMesh.h"
 #include "../misc/sphere_drawing.h"
 #include "collisionObject.h"
 
@@ -9,22 +8,30 @@ using namespace CGL;
 using namespace std;
 
 struct Sphere : public CollisionObject {
-public:
-  Sphere(const Vector3D &origin, double radius, double friction, int num_lat = 40, int num_lon = 40)
-      : origin(origin), radius(radius), radius2(radius * radius),
-        friction(friction), m_sphere_mesh(Misc::SphereMesh(num_lat, num_lon)) {}
+  public:
+    Sphere(const Vector3D& origin, double radius, double friction, int num_lat = 40, int num_lon = 40)
+        : origin(origin), radius(radius), radius2(radius * radius), friction(friction),
+          m_sphere_mesh(Misc::SphereMesh(num_lat, num_lon)) {}
 
-  void render(GLShader &shader);
-  void collide(PointMass &pm);
+    void render(GLShader& shader);
+    void collide(PointMass& pm);
 
-private:
-  Vector3D origin;
-  double radius;
-  double radius2;
+    void set_use_sdf(bool enable) { use_sdf = enable; }
+    bool get_use_sdf() const { return use_sdf; }
+    void set_use_ccd(bool enable) { use_ccd = enable; }
+    bool get_use_ccd() const { return use_ccd; }
 
-  double friction;
-  
-  Misc::SphereMesh m_sphere_mesh;
+  private:
+    Vector3D origin;
+    double radius;
+    double radius2;
+
+    double friction;
+
+    Misc::SphereMesh m_sphere_mesh;
+
+    bool use_sdf = false;
+    bool use_ccd = false;
 };
 
 #endif /* COLLISIONOBJECT_SPHERE_H */

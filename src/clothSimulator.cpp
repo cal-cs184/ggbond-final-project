@@ -8,7 +8,6 @@
 
 #include "camera.h"
 #include "cloth.h"
-#include "collision/plane.h"
 #include "collision/sphere.h"
 #include "misc/camera_info.h"
 #include "misc/file_utils.h"
@@ -386,6 +385,11 @@ void ClothSimulator::drawContents() {
     }
 
     for (CollisionObject* co : *collision_objects) {
+        // Try to pass the SDF toggle to spheres (safe dynamic_cast)
+        if (auto* sphere = dynamic_cast<Sphere*>(co)) {
+            sphere->set_use_sdf(use_sdf_collision);
+            sphere->set_use_ccd(use_ccd_collision);
+        }
         co->render(shader);
     }
 }
@@ -813,6 +817,23 @@ void ClothSimulator::initGUI(Screen* screen) {
             cp->damping = (double)value;
             // cout << "Final slider value: " << (int)(value * 100) << endl;
         });
+    }
+
+    // Collision options
+    new Label(window, "Collision", "sans-bold");
+    {
+        Button* b = new Button(window, "Use SDF for sphere");
+        b->setFlags(Button::ToggleButton);
+        b->setPushed(use_sdf_collision);
+        b->setFontSize(14);
+        b->setChangeCallback([this](bool state) { use_sdf_collision = state; });
+    }
+    {
+        Button* b = new Button(window, "Use CCD (ray marching)");
+        b->setFlags(Button::ToggleButton);
+        b->setPushed(use_ccd_collision);
+        b->setFontSize(14);
+        b->setChangeCallback([this](bool state) { use_ccd_collision = state; });
     }
 
     // Gravity

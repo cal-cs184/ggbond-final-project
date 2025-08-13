@@ -129,6 +129,9 @@ class ClothSimulator {
 
     bool is_paused = true;
 
+    // Time for animations
+    double simulation_time = 0.0;
+
     // Collision options
     bool use_sdf_collision = false;          // toggle in GUI
     bool use_ccd_collision = false;          // toggle in GUI

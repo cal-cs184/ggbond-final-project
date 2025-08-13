@@ -8,6 +8,7 @@
 
 #include "camera.h"
 #include "cloth.h"
+#include "collision/dynamicSDF.h"
 #include "collision/sphere.h"
 #include "misc/camera_info.h"
 #include "misc/file_utils.h"
@@ -152,6 +153,9 @@ void ClothSimulator::load_shaders() {
         } else if (shader_name == "NewRayMarching") {
             hint = ShaderTypeHint::VOLUME_RENDERING;
             std::cout << "Type: Volume Rendering" << std::endl;
+        } else if (shader_name == "DynamicRayMarching") {
+            hint = ShaderTypeHint::VOLUME_RENDERING;
+            std::cout << "Type: Dynamic Ray Marching" << std::endl;
         } else {
             hint = ShaderTypeHint::PHONG;
             std::cout << "Type: Custom" << std::endl;
@@ -279,6 +283,9 @@ void ClothSimulator::drawContents() {
         for (int i = 0; i < simulation_steps; i++) {
             cloth->simulate(frames_per_sec, simulation_steps, cp, external_accelerations, collision_objects);
         }
+
+        // Update simulation time for animations
+        simulation_time += 1.0 / frames_per_sec;
     }
 
     // Update cloth particles texture with current positions
@@ -376,11 +383,13 @@ void ClothSimulator::drawContents() {
         shader.setUniform("u_cam_pos", Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), false);
         shader.setUniform("u_light_pos", Vector3f(0.5, 2, 2), false);
         shader.setUniform("u_light_intensity", Vector3f(3, 3, 3), false);
+        shader.setUniform("u_time", (float)simulation_time, false);
         shader.setUniform("u_texture_1", 1, false);
         shader.setUniform("u_cloth_particles_tex", 6, false);
         shader.setUniform("u_cloth_tex_width", m_cloth_tex_width, false);
         shader.setUniform("u_cloth_tex_height", m_cloth_tex_height, false);
         drawVolumeRendering(shader);
+        // 在volume rendering模式下不渲染碰撞对象，只显示ray marching场景
         break;
     }
 
@@ -389,7 +398,12 @@ void ClothSimulator::drawContents() {
         if (auto* sphere = dynamic_cast<Sphere*>(co)) {
             sphere->set_use_sdf(use_sdf_collision);
             sphere->set_use_ccd(use_ccd_collision);
-                sphere->set_use_ray_marching(use_ray_marching_collision);
+            sphere->set_use_ray_marching(use_ray_marching_collision);
+        }
+        // 若是动态SDF对象，同步时间与开关
+        if (auto* sdfObj = dynamic_cast<DynamicSDFObject*>(co)) {
+            sdfObj->set_time(simulation_time);
+            sdfObj->set_enabled(use_ray_marching_collision);
         }
         co->render(shader);
     }
@@ -948,6 +962,8 @@ void ClothSimulator::drawVolumeRendering(GLShader& shader) {
     // Create a full-screen quad for volume rendering
     // This quad covers the entire screen in clip space
     MatrixXf positions(4, 4);
+    MatrixXf normals(4, 4);
+    MatrixXf tangents(4, 4);
     MatrixXf uvs(2, 4);
 
     // Full-screen quad vertices in clip space
@@ -955,6 +971,18 @@ void ClothSimulator::drawVolumeRendering(GLShader& shader) {
     positions.col(1) << 1.0f, -1.0f, 0.0f, 1.0f;  // Bottom-right
     positions.col(2) << -1.0f, 1.0f, 0.0f, 1.0f;  // Top-left
     positions.col(3) << 1.0f, 1.0f, 0.0f, 1.0f;   // Top-right
+
+    // Normals (not used in ray marching but required by vertex shader)
+    normals.col(0) << 0.0f, 0.0f, 1.0f, 0.0f;
+    normals.col(1) << 0.0f, 0.0f, 1.0f, 0.0f;
+    normals.col(2) << 0.0f, 0.0f, 1.0f, 0.0f;
+    normals.col(3) << 0.0f, 0.0f, 1.0f, 0.0f;
+
+    // Tangents (not used in ray marching but required by vertex shader)
+    tangents.col(0) << 1.0f, 0.0f, 0.0f, 0.0f;
+    tangents.col(1) << 1.0f, 0.0f, 0.0f, 0.0f;
+    tangents.col(2) << 1.0f, 0.0f, 0.0f, 0.0f;
+    tangents.col(3) << 1.0f, 0.0f, 0.0f, 0.0f;
 
     // UV coordinates for the quad
     uvs.col(0) << 0.0f, 0.0f; // Bottom-left
@@ -964,6 +992,8 @@ void ClothSimulator::drawVolumeRendering(GLShader& shader) {
 
     // Upload attributes
     shader.uploadAttrib("in_position", positions, false);
+    shader.uploadAttrib("in_normal", normals, false);
+    shader.uploadAttrib("in_tangent", tangents, false);
     shader.uploadAttrib("in_uv", uvs, false);
 
     // Draw the quad using triangle strip

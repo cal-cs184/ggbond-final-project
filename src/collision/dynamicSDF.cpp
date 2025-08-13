@@ -35,16 +35,16 @@ void DynamicSDFObject::render(GLShader& shader) {
 // New: SDF point cloud sampling rendering function
 void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
     // Precise SDF point cloud sampling: strictly limited to near surface
-    const int num_samples = 8000;          // Increase sampling count
-    const double surface_threshold = 0.02; // Stricter threshold
-    const double max_distance = 2.5;       // Limit sampling range
+    const int num_samples = m_num_samples;                // Configurable sampling count
+    const double surface_threshold = m_surface_threshold; // Configurable threshold
+    const double max_distance = m_max_distance;           // Configurable sampling range
 
     std::vector<Vector3D> surface_points;
     std::vector<Vector3D> surface_normals;
 
     // Calculate positions of two objects at current time
-    Vector3D sphere_center = Vector3D(sin(m_time * 0.5) * 2.0, 0.0, 0.0);
-    Vector3D box_center = Vector3D(cos(m_time * 0.5) * 2.0, 0.0, 0.0);
+    Vector3D sphere_center = Vector3D(sin(m_time * m_motion_speed) * 2.0, 0.0, 0.0);
+    Vector3D box_center = Vector3D(cos(m_time * m_motion_speed) * 2.0, 0.0, 0.0);
 
     // Strategy 1: Precise sphere surface sampling
     for (int i = 0; i < num_samples / 3; i++) {
@@ -53,7 +53,7 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
         double phi = (rand() / (double)RAND_MAX) * M_PI;
 
         // Start from sphere surface, offset inward or outward
-        double r = 1.0 + (rand() / (double)RAND_MAX - 0.5) * 0.1; // Smaller offset range
+        double r = m_sphere_radius + (rand() / (double)RAND_MAX - 0.5) * 0.1; // Configurable radius
 
         Vector3D sample_point;
         sample_point.x = sphere_center.x + r * sin(phi) * cos(theta);
@@ -70,7 +70,7 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
 
     // Strategy 2: Precise box surface sampling
     for (int i = 0; i < num_samples / 3; i++) {
-        Vector3D box_size(0.8, 0.8, 0.8);
+        Vector3D box_size(m_box_size, m_box_size, m_box_size);
 
         // Randomly select one face of the box
         int face = rand() % 6; // 6 faces
@@ -171,8 +171,8 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
 
             // Adjust sphere size based on SDF value (smaller when closer to surface)
             double sphere_size = 0.02 * (1.0 - std::abs(sdf_val) / surface_threshold);
-            sphere_size = std::max(sphere_size, 0.003); // Smaller minimum size
-            sphere_size = std::min(sphere_size, 0.04);  // Smaller maximum size
+            sphere_size = std::max(sphere_size, m_min_sphere_size); // Configurable minimum size
+            sphere_size = std::min(sphere_size, m_max_sphere_size); // Configurable maximum size
 
             m_debug_sphere.draw_sphere(shader, surface_points[i], sphere_size);
         }
@@ -182,12 +182,12 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
 // Scene SDF: union of two primitives moving over time
 double DynamicSDFObject::sdf_scene(const Vector3D& p, double t) const {
     // Dynamic sphere
-    Vector3D sphere_center = Vector3D(sin(t * 0.5) * 2.0, 0.0, 0.0);
-    double d_sphere = sdf_sphere(p - sphere_center, 1.0);
+    Vector3D sphere_center = Vector3D(sin(t * m_motion_speed) * 2.0, 0.0, 0.0);
+    double d_sphere = sdf_sphere(p - sphere_center, m_sphere_radius);
 
     // Dynamic box
-    Vector3D box_center = Vector3D(cos(t * 0.5) * 2.0, 0.0, 0.0);
-    double d_box = sdf_box(p - box_center, Vector3D(0.8, 0.8, 0.8));
+    Vector3D box_center = Vector3D(cos(t * m_motion_speed) * 2.0, 0.0, 0.0);
+    double d_box = sdf_box(p - box_center, Vector3D(m_box_size, m_box_size, m_box_size));
 
     return std::min(d_sphere, d_box); // Union
 }

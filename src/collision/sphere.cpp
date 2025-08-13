@@ -186,6 +186,11 @@ void Sphere::collide(PointMass& pm) {
 }
 
 void Sphere::render(GLShader& shader) {
+    // Don't render if hidden when dynamic SDF is enabled
+    if (hide_when_dynamic_sdf) {
+        return;
+    }
+
     // Slightly reduce rendering radius to avoid visual intersection of flat triangles
     m_sphere_mesh.draw_sphere(shader, origin, radius * 0.92);
 }

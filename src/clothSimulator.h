@@ -136,6 +136,17 @@ class ClothSimulator {
     bool use_sdf_collision = false;          // toggle in GUI
     bool use_ccd_collision = false;          // toggle in GUI
     bool use_ray_marching_collision = false; // toggle in GUI
+    bool use_dynamic_sdf_object = false;     // toggle in GUI for dynamic SDF object
+
+    // Dynamic SDF Object parameters
+    int dynamic_sdf_num_samples = 8000;
+    double dynamic_sdf_surface_threshold = 0.02;
+    double dynamic_sdf_max_distance = 2.5;
+    double dynamic_sdf_min_sphere_size = 0.003;
+    double dynamic_sdf_max_sphere_size = 0.04;
+    double dynamic_sdf_motion_speed = 2.0;
+    double dynamic_sdf_sphere_radius = 1.0;
+    double dynamic_sdf_box_size = 0.8;
 
     // Screen attributes
 

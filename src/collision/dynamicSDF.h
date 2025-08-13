@@ -16,6 +16,26 @@ struct DynamicSDFObject : public CollisionObject {
     void set_enabled(bool e) { m_enabled = e; }
     bool enabled() const { return m_enabled; }
 
+    // Configurable parameters
+    void set_num_samples(int samples) { m_num_samples = samples; }
+    void set_surface_threshold(double threshold) { m_surface_threshold = threshold; }
+    void set_max_distance(double distance) { m_max_distance = distance; }
+    void set_min_sphere_size(double size) { m_min_sphere_size = size; }
+    void set_max_sphere_size(double size) { m_max_sphere_size = size; }
+    void set_motion_speed(double speed) { m_motion_speed = speed; }
+    void set_sphere_radius(double radius) { m_sphere_radius = radius; }
+    void set_box_size(double size) { m_box_size = size; }
+
+    // Getters
+    int get_num_samples() const { return m_num_samples; }
+    double get_surface_threshold() const { return m_surface_threshold; }
+    double get_max_distance() const { return m_max_distance; }
+    double get_min_sphere_size() const { return m_min_sphere_size; }
+    double get_max_sphere_size() const { return m_max_sphere_size; }
+    double get_motion_speed() const { return m_motion_speed; }
+    double get_sphere_radius() const { return m_sphere_radius; }
+    double get_box_size() const { return m_box_size; }
+
     // Required interfaces
     void render(GLShader& shader) override;
     void collide(PointMass& pm) override;
@@ -45,6 +65,16 @@ struct DynamicSDFObject : public CollisionObject {
     double m_time;
     bool m_enabled;
     Misc::SphereMesh m_debug_sphere; // Only for visualization
+
+    // Configurable parameters
+    int m_num_samples = 8000;
+    double m_surface_threshold = 0.02;
+    double m_max_distance = 2.5;
+    double m_min_sphere_size = 0.003;
+    double m_max_sphere_size = 0.04;
+    double m_motion_speed = 2.0;
+    double m_sphere_radius = 1.0;
+    double m_box_size = 0.8;
 };
 
 #endif // COLLISIONOBJECT_DYNAMIC_SDF_H

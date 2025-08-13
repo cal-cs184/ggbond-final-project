@@ -399,11 +399,22 @@ void ClothSimulator::drawContents() {
             sphere->set_use_sdf(use_sdf_collision);
             sphere->set_use_ccd(use_ccd_collision);
             sphere->set_use_ray_marching(use_ray_marching_collision);
+            sphere->set_hide_when_dynamic_sdf(use_dynamic_sdf_object);
         }
         // If it's a dynamic SDF object, synchronize time and toggle
         if (auto* sdfObj = dynamic_cast<DynamicSDFObject*>(co)) {
             sdfObj->set_time(simulation_time);
-            sdfObj->set_enabled(use_ray_marching_collision);
+            sdfObj->set_enabled(use_dynamic_sdf_object);
+
+            // Update configurable parameters
+            sdfObj->set_num_samples(dynamic_sdf_num_samples);
+            sdfObj->set_surface_threshold(dynamic_sdf_surface_threshold);
+            sdfObj->set_max_distance(dynamic_sdf_max_distance);
+            sdfObj->set_min_sphere_size(dynamic_sdf_min_sphere_size);
+            sdfObj->set_max_sphere_size(dynamic_sdf_max_sphere_size);
+            sdfObj->set_motion_speed(dynamic_sdf_motion_speed);
+            sdfObj->set_sphere_radius(dynamic_sdf_sphere_radius);
+            sdfObj->set_box_size(dynamic_sdf_box_size);
         }
         co->render(shader);
     }
@@ -835,14 +846,14 @@ void ClothSimulator::initGUI(Screen* screen) {
     }
 
     // Collision options
-    new Label(window, "Collision", "sans-bold");
-    {
-        Button* b = new Button(window, "Use SDF for sphere");
-        b->setFlags(Button::ToggleButton);
-        b->setPushed(use_sdf_collision);
-        b->setFontSize(14);
-        b->setChangeCallback([this](bool state) { use_sdf_collision = state; });
-    }
+    new Label(window, "Sphere Collision", "sans-bold");
+    // {
+    //     Button* b = new Button(window, "Use SDF for sphere");
+    //     b->setFlags(Button::ToggleButton);
+    //     b->setPushed(use_sdf_collision);
+    //     b->setFontSize(14);
+    //     b->setChangeCallback([this](bool state) { use_sdf_collision = state; });
+    // }
     {
         Button* b = new Button(window, "Use CCD");
         b->setFlags(Button::ToggleButton);
@@ -856,6 +867,96 @@ void ClothSimulator::initGUI(Screen* screen) {
         b->setPushed(use_ray_marching_collision);
         b->setFontSize(14);
         b->setChangeCallback([this](bool state) { use_ray_marching_collision = state; });
+    }
+
+    new Label(window, "Dynamic SDF Object", "sans-bold");
+    {
+        Button* b = new Button(window, "Enable (collision with ray marching)");
+        b->setFlags(Button::ToggleButton);
+        b->setPushed(use_dynamic_sdf_object);
+        b->setFontSize(14);
+        b->setChangeCallback([this](bool state) { use_dynamic_sdf_object = state; });
+    }
+
+    // Dynamic SDF Object Parameters
+    {
+        Widget* panel = new Widget(window);
+        GridLayout* layout = new GridLayout(Orientation::Horizontal, 2, Alignment::Middle, 5, 5);
+        layout->setColAlignment({Alignment::Maximum, Alignment::Fill});
+        layout->setSpacing(0, 10);
+        panel->setLayout(layout);
+
+        new Label(panel, "Particle Count :", "sans-bold");
+        IntBox<int>* ib = new IntBox<int>(panel);
+        ib->setEditable(true);
+        ib->setFixedSize(Vector2i(100, 20));
+        ib->setFontSize(14);
+        ib->setValue(dynamic_sdf_num_samples);
+        ib->setSpinnable(true);
+        ib->setCallback([this](int value) { dynamic_sdf_num_samples = value; });
+
+        new Label(panel, "Surface Threshold :", "sans-bold");
+        FloatBox<double>* fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_surface_threshold);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_surface_threshold = value; });
+
+        new Label(panel, "Max Distance :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_max_distance);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_max_distance = value; });
+
+        new Label(panel, "Min Sphere Size :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_min_sphere_size);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_min_sphere_size = value; });
+
+        new Label(panel, "Max Sphere Size :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_max_sphere_size);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_max_sphere_size = value; });
+
+        new Label(panel, "Motion Speed :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_motion_speed);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_motion_speed = value; });
+
+        new Label(panel, "Sphere Radius :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_sphere_radius);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_sphere_radius = value; });
+
+        new Label(panel, "Box Size :", "sans-bold");
+        fb = new FloatBox<double>(panel);
+        fb->setEditable(true);
+        fb->setFixedSize(Vector2i(100, 20));
+        fb->setFontSize(14);
+        fb->setValue(dynamic_sdf_box_size);
+        fb->setSpinnable(true);
+        fb->setCallback([this](float value) { dynamic_sdf_box_size = value; });
     }
 
     // Gravity

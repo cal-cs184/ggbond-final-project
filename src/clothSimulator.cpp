@@ -389,6 +389,7 @@ void ClothSimulator::drawContents() {
         if (auto* sphere = dynamic_cast<Sphere*>(co)) {
             sphere->set_use_sdf(use_sdf_collision);
             sphere->set_use_ccd(use_ccd_collision);
+                sphere->set_use_ray_marching(use_ray_marching_collision);
         }
         co->render(shader);
     }
@@ -829,11 +830,18 @@ void ClothSimulator::initGUI(Screen* screen) {
         b->setChangeCallback([this](bool state) { use_sdf_collision = state; });
     }
     {
-        Button* b = new Button(window, "Use CCD (ray marching)");
+        Button* b = new Button(window, "Use CCD");
         b->setFlags(Button::ToggleButton);
         b->setPushed(use_ccd_collision);
         b->setFontSize(14);
         b->setChangeCallback([this](bool state) { use_ccd_collision = state; });
+    }
+    {
+        Button* b = new Button(window, "Use Pure Ray Marching");
+        b->setFlags(Button::ToggleButton);
+        b->setPushed(use_ray_marching_collision);
+        b->setFontSize(14);
+        b->setChangeCallback([this](bool state) { use_ray_marching_collision = state; });
     }
 
     // Gravity

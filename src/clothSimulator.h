@@ -130,8 +130,9 @@ class ClothSimulator {
     bool is_paused = true;
 
     // Collision options
-    bool use_sdf_collision = false; // toggle in GUI
-    bool use_ccd_collision = false; // toggle in GUI
+    bool use_sdf_collision = false;          // toggle in GUI
+    bool use_ccd_collision = false;          // toggle in GUI
+    bool use_ray_marching_collision = false; // toggle in GUI
 
     // Screen attributes
 

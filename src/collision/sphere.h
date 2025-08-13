@@ -20,6 +20,8 @@ struct Sphere : public CollisionObject {
     bool get_use_sdf() const { return use_sdf; }
     void set_use_ccd(bool enable) { use_ccd = enable; }
     bool get_use_ccd() const { return use_ccd; }
+    void set_use_ray_marching(bool enable) { use_ray_marching = enable; }
+    bool get_use_ray_marching() const { return use_ray_marching; }
 
   private:
     Vector3D origin;
@@ -32,6 +34,7 @@ struct Sphere : public CollisionObject {
 
     bool use_sdf = false;
     bool use_ccd = false;
+    bool use_ray_marching = false;
 };
 
 #endif /* COLLISIONOBJECT_SPHERE_H */

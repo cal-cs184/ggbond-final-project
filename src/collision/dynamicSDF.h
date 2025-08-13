@@ -37,6 +37,9 @@ struct DynamicSDFObject : public CollisionObject {
     // SDF 法线（用于放置）
     Vector3D sdf_normal(const Vector3D& p, double t) const;
 
+    // SDF点云渲染（更精确的SDF可视化）
+    void renderSDFPointCloud(GLShader& shader);
+
   private:
     double m_friction; // [0,1]
     double m_time;

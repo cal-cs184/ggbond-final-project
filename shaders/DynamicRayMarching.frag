@@ -4,7 +4,7 @@ uniform vec3 u_cam_pos;
 uniform vec3 u_light_pos;
 uniform vec3 u_light_intensity;
 uniform mat4 u_inv_view_projection;
-uniform float u_time; // 时间参数用于动画
+uniform float u_time; // Time parameter for animation
 
 in vec4 v_position;
 in vec4 v_normal;
@@ -13,12 +13,12 @@ in vec4 v_tangent;
 
 out vec4 out_color;
 
-// Ray marching参数
+// Ray marching parameters
 const int MAX_STEPS = 64;
 const float MAX_DIST = 10.0;
 const float EPSILON = 0.001;
 
-// 噪声函数 - 用于创建动态形状
+// Noise function - for creating dynamic shapes
 float noise(vec3 p) {
     return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
 }
@@ -41,7 +41,7 @@ float smoothNoise(vec3 p) {
                mix(mix(e, f1, f.x), mix(g, h, f.x), f.y), f.z);
 }
 
-// 分形噪声 - 创建更复杂的形状
+// Fractal noise - creates more complex shapes
 float fractalNoise(vec3 p, int octaves) {
     float value = 0.0;
     float amplitude = 0.5;
@@ -56,7 +56,7 @@ float fractalNoise(vec3 p, int octaves) {
     return value;
 }
 
-// 基础形状的SDF函数
+// Basic shape SDF functions
 float sphereSDF(vec3 p, float r) {
     return length(p) - r;
 }
@@ -71,7 +71,7 @@ float torusSDF(vec3 p, vec2 t) {
     return length(q) - t.y;
 }
 
-// 布尔运算
+// Boolean operations
 float unionSDF(float a, float b) {
     return min(a, b);
 }
@@ -84,7 +84,7 @@ float differenceSDF(float a, float b) {
     return max(a, -b);
 }
 
-// 形变函数
+// Deformation functions
 vec3 twist(vec3 p, float k) {
     float c = cos(k * p.y);
     float s = sin(k * p.y);
@@ -99,7 +99,7 @@ vec3 bend(vec3 p, float k) {
     return vec3(m * p.xy, p.z);
 }
 
-// 主SDF函数 - 与 CPU 侧 DynamicSDFObject 完全一致：并集(球, 盒子)
+// Main SDF function - completely consistent with CPU-side DynamicSDFObject: union(sphere, box)
 float sceneSDF(vec3 p) {
     float t = u_time * 0.5;
     vec3 sphere_center = vec3(sin(t) * 2.0, 0.0, 0.0);
@@ -110,7 +110,7 @@ float sceneSDF(vec3 p) {
     return min(d_sphere, d_box);
 }
 
-// 计算法线
+// Calculate normal
 vec3 calculateNormal(vec3 p) {
     const float h = 0.001;
     const vec2 k = vec2(1.0, -1.0);
@@ -120,7 +120,7 @@ vec3 calculateNormal(vec3 p) {
                     k.xxx * sceneSDF(p + k.xxx * h));
 }
 
-// Ray marching主函数
+// Ray marching main function
 float rayMarch(vec3 ro, vec3 rd) {
     float depth = 0.0;
     
@@ -142,22 +142,22 @@ float rayMarch(vec3 ro, vec3 rd) {
     return -1.0;
 }
 
-// 光照计算
+// Lighting calculation
 vec3 calculateLighting(vec3 p, vec3 normal, vec3 ro, vec3 rd) {
     vec3 light_dir = normalize(u_light_pos - p);
     vec3 view_dir = normalize(ro - p);
     vec3 half_dir = normalize(light_dir + view_dir);
     
-    // 漫反射
+    // Diffuse reflection
     float diffuse = max(0.0, dot(normal, light_dir));
     
-    // 镜面反射
+    // Specular reflection
     float specular = pow(max(0.0, dot(normal, half_dir)), 32.0);
     
-    // 环境光
+    // Ambient light
     float ambient = 0.2;
     
-    // 基于位置的动态颜色
+    // Position-based dynamic color
     vec3 base_color = vec3(0.6, 0.8, 1.0);
     float noise_color = fractalNoise(p * 3.0 + u_time * 0.2, 2);
     vec3 color = mix(base_color, vec3(1.0, 0.5, 0.2), noise_color * 0.5);
@@ -166,7 +166,7 @@ vec3 calculateLighting(vec3 p, vec3 normal, vec3 ro, vec3 rd) {
 }
 
 void main() {
-    // 计算射线方向
+    // Calculate ray direction
     vec2 ndc = v_uv * 2.0 - 1.0;
     vec4 clip = vec4(ndc, -1.0, 1.0);
     vec4 world = u_inv_view_projection * clip;
@@ -175,24 +175,24 @@ void main() {
     
     vec3 ray_origin = u_cam_pos;
     
-    // 执行ray marching
+    // Execute ray marching
     float dist = rayMarch(ray_origin, ray_direction);
     
     if (dist > 0.0) {
-        // 计算碰撞点
+        // Calculate collision point
         vec3 hit_point = ray_origin + ray_direction * dist;
         vec3 normal = calculateNormal(hit_point);
         
-        // 计算光照
+        // Calculate lighting
         vec3 color = calculateLighting(hit_point, normal, ray_origin, ray_direction);
         
-        // 添加雾效果
+        // Add fog effect
         float fog = 1.0 - exp(-dist * 0.1);
         color = mix(color, vec3(0.5, 0.7, 1.0), fog);
         
         out_color = vec4(color, 1.0);
     } else {
-        // 背景
+        // Background
         vec3 background = vec3(0.05, 0.05, 0.1);
         out_color = vec4(background, 1.0);
     }

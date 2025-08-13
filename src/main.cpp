@@ -319,7 +319,7 @@ bool loadObjectsFromFile(string filename, Cloth* cloth, ClothParameters* cp, vec
 
             Sphere* s = new Sphere(origin, radius, friction, sphere_num_lat, sphere_num_lon);
             objects->push_back(s);
-            // 额外：添加一个动态SDF对象用于展示 ray marching 碰撞（可通过GUI开关）
+            // Additional: Add a dynamic SDF object for demonstrating ray marching collision (can be toggled via GUI)
             objects->push_back(new DynamicSDFObject(0.3));
         } else { // PLANE
             Vector3D point, normal;

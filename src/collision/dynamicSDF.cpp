@@ -6,61 +6,61 @@
 
 using namespace CGL;
 
-// 渲染动态SDF对象：显示两个组成部分的近似可视化
+// Render dynamic SDF object: display approximate visualization of two components
 void DynamicSDFObject::render(GLShader& shader) {
     if (!m_enabled) {
-        return; // 如果未启用，不渲染
+        return; // If not enabled, don't render
     }
 
-    // // 方法1：Mesh近似渲染（简单但不够精确）
-    // // 计算当前时间下两个对象的位置
+    // // Method 1: Mesh approximation rendering (simple but not precise enough)
+    // // Calculate positions of two objects at current time
     // Vector3D sphere_center = Vector3D(sin(m_time * 0.5) * 2.0, 0.0, 0.0);
     // Vector3D box_center = Vector3D(cos(m_time * 0.5) * 2.0, 0.0, 0.0);
 
-    // // 渲染球体部分（使用debug_sphere）
-    // nanogui::Color sphere_color(0.8f, 0.3f, 0.3f, 1.0f); // 红色
+    // // Render sphere part (using debug_sphere)
+    // nanogui::Color sphere_color(0.8f, 0.3f, 0.3f, 1.0f); // Red
     // shader.setUniform("u_color", sphere_color);
     // m_debug_sphere.draw_sphere(shader, sphere_center, 1.0);
 
-    // // 渲染盒子部分（用球体近似，因为盒子mesh需要额外实现）
-    // // 使用稍小的球体来近似盒子
-    // nanogui::Color box_color(0.3f, 0.8f, 0.3f, 1.0f); // 绿色
+    // // Render box part (approximated with sphere, since box mesh requires additional implementation)
+    // // Use slightly smaller sphere to approximate box
+    // nanogui::Color box_color(0.3f, 0.8f, 0.3f, 1.0f); // Green
     // shader.setUniform("u_color", box_color);
     // m_debug_sphere.draw_sphere(shader, box_center, 0.8);
 
-    // 方法2：SDF点云采样渲染（更精确的SDF可视化）
+    // Method 2: SDF point cloud sampling rendering (more precise SDF visualization)
     renderSDFPointCloud(shader);
 }
 
-// 新增：SDF点云采样渲染函数
+// New: SDF point cloud sampling rendering function
 void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
-    // 精确的SDF点云采样：严格限制在表面附近
-    const int num_samples = 8000;          // 增加采样数量
-    const double surface_threshold = 0.02; // 更严格的阈值
-    const double max_distance = 2.5;       // 限制采样范围
+    // Precise SDF point cloud sampling: strictly limited to near surface
+    const int num_samples = 8000;          // Increase sampling count
+    const double surface_threshold = 0.02; // Stricter threshold
+    const double max_distance = 2.5;       // Limit sampling range
 
     std::vector<Vector3D> surface_points;
     std::vector<Vector3D> surface_normals;
 
-    // 计算当前时间下两个对象的位置
+    // Calculate positions of two objects at current time
     Vector3D sphere_center = Vector3D(sin(m_time * 0.5) * 2.0, 0.0, 0.0);
     Vector3D box_center = Vector3D(cos(m_time * 0.5) * 2.0, 0.0, 0.0);
 
-    // 策略1：精确的球体表面采样
+    // Strategy 1: Precise sphere surface sampling
     for (int i = 0; i < num_samples / 3; i++) {
-        // 在球体表面精确采样
+        // Precise sampling on sphere surface
         double theta = (rand() / (double)RAND_MAX) * 2.0 * M_PI;
         double phi = (rand() / (double)RAND_MAX) * M_PI;
 
-        // 从球体表面开始，向内或向外偏移
-        double r = 1.0 + (rand() / (double)RAND_MAX - 0.5) * 0.1; // 更小的偏移范围
+        // Start from sphere surface, offset inward or outward
+        double r = 1.0 + (rand() / (double)RAND_MAX - 0.5) * 0.1; // Smaller offset range
 
         Vector3D sample_point;
         sample_point.x = sphere_center.x + r * sin(phi) * cos(theta);
         sample_point.y = sphere_center.y + r * cos(phi);
         sample_point.z = sphere_center.z + r * sin(phi) * sin(theta);
 
-        // 严格检查SDF值
+        // Strictly check SDF value
         double sdf_value = sdf_scene(sample_point, m_time);
         if (std::abs(sdf_value) < surface_threshold && sample_point.norm() < max_distance) {
             surface_points.push_back(sample_point);
@@ -68,48 +68,48 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
         }
     }
 
-    // 策略2：精确的盒子表面采样
+    // Strategy 2: Precise box surface sampling
     for (int i = 0; i < num_samples / 3; i++) {
         Vector3D box_size(0.8, 0.8, 0.8);
 
-        // 随机选择盒子的一个面
-        int face = rand() % 6; // 6个面
+        // Randomly select one face of the box
+        int face = rand() % 6; // 6 faces
         Vector3D sample_point;
 
         switch (face) {
-        case 0: // +X面
+        case 0: // +X face
             sample_point.x = box_center.x + box_size.x + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             sample_point.y = box_center.y + (rand() / (double)RAND_MAX - 0.5) * box_size.y * 2.0;
             sample_point.z = box_center.z + (rand() / (double)RAND_MAX - 0.5) * box_size.z * 2.0;
             break;
-        case 1: // -X面
+        case 1: // -X face
             sample_point.x = box_center.x - box_size.x + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             sample_point.y = box_center.y + (rand() / (double)RAND_MAX - 0.5) * box_size.y * 2.0;
             sample_point.z = box_center.z + (rand() / (double)RAND_MAX - 0.5) * box_size.z * 2.0;
             break;
-        case 2: // +Y面
+        case 2: // +Y face
             sample_point.x = box_center.x + (rand() / (double)RAND_MAX - 0.5) * box_size.x * 2.0;
             sample_point.y = box_center.y + box_size.y + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             sample_point.z = box_center.z + (rand() / (double)RAND_MAX - 0.5) * box_size.z * 2.0;
             break;
-        case 3: // -Y面
+        case 3: // -Y face
             sample_point.x = box_center.x + (rand() / (double)RAND_MAX - 0.5) * box_size.x * 2.0;
             sample_point.y = box_center.y - box_size.y + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             sample_point.z = box_center.z + (rand() / (double)RAND_MAX - 0.5) * box_size.z * 2.0;
             break;
-        case 4: // +Z面
+        case 4: // +Z face
             sample_point.x = box_center.x + (rand() / (double)RAND_MAX - 0.5) * box_size.x * 2.0;
             sample_point.y = box_center.y + (rand() / (double)RAND_MAX - 0.5) * box_size.y * 2.0;
             sample_point.z = box_center.z + box_size.z + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             break;
-        case 5: // -Z面
+        case 5: // -Z face
             sample_point.x = box_center.x + (rand() / (double)RAND_MAX - 0.5) * box_size.x * 2.0;
             sample_point.y = box_center.y + (rand() / (double)RAND_MAX - 0.5) * box_size.y * 2.0;
             sample_point.z = box_center.z - box_size.z + (rand() / (double)RAND_MAX - 0.5) * 0.1;
             break;
         }
 
-        // 严格检查SDF值
+        // Strictly check SDF value
         double sdf_value = sdf_scene(sample_point, m_time);
         if (std::abs(sdf_value) < surface_threshold && sample_point.norm() < max_distance) {
             surface_points.push_back(sample_point);
@@ -117,9 +117,9 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
         }
     }
 
-    // 策略3：SDF表面精确投影
+    // Strategy 3: SDF surface precise projection
     for (int i = 0; i < num_samples / 3; i++) {
-        // 在合理范围内随机采样
+        // Random sampling within reasonable range
         Vector3D sample_point;
         sample_point.x = (rand() / (double)RAND_MAX - 0.5) * 4.0;
         sample_point.y = (rand() / (double)RAND_MAX - 0.5) * 2.0;
@@ -128,9 +128,9 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
         if (sample_point.norm() < max_distance) {
             double sdf_value = sdf_scene(sample_point, m_time);
 
-            // 如果接近表面，进行精确投影
+            // If close to surface, perform precise projection
             if (std::abs(sdf_value) < surface_threshold * 2.0) {
-                // 使用牛顿法精确投影到表面
+                // Use Newton's method to precisely project to surface
                 Vector3D projected_point = sample_point;
                 for (int iter = 0; iter < 5; iter++) {
                     double current_sdf = sdf_scene(projected_point, m_time);
@@ -141,7 +141,7 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
                     projected_point = projected_point - normal * current_sdf;
                 }
 
-                // 最终检查
+                // Final check
                 double final_sdf = sdf_scene(projected_point, m_time);
                 if (std::abs(final_sdf) < surface_threshold && projected_point.norm() < max_distance) {
                     surface_points.push_back(projected_point);
@@ -151,48 +151,48 @@ void DynamicSDFObject::renderSDFPointCloud(GLShader& shader) {
         }
     }
 
-    // 渲染SDF表面点云
+    // Render SDF surface point cloud
     if (!surface_points.empty()) {
-        // 根据SDF值设置不同颜色
+        // Set different colors based on SDF value
         for (size_t i = 0; i < surface_points.size(); i++) {
             double sdf_val = sdf_scene(surface_points[i], m_time);
 
-            // 根据SDF值设置颜色（负值=内部，正值=外部）
+            // Set color based on SDF value (negative = inside, positive = outside)
             nanogui::Color sdf_color;
             if (sdf_val < 0) {
-                // 内部：蓝色
+                // Inside: blue
                 sdf_color = nanogui::Color(0.2f, 0.6f, 1.0f, 0.9f);
             } else {
-                // 外部：绿色
+                // Outside: green
                 sdf_color = nanogui::Color(0.2f, 1.0f, 0.6f, 0.7f);
             }
 
             shader.setUniform("u_color", sdf_color);
 
-            // 根据SDF值调整球体大小（越接近表面越小）
+            // Adjust sphere size based on SDF value (smaller when closer to surface)
             double sphere_size = 0.02 * (1.0 - std::abs(sdf_val) / surface_threshold);
-            sphere_size = std::max(sphere_size, 0.003); // 更小的最小尺寸
-            sphere_size = std::min(sphere_size, 0.04);  // 更小的最大尺寸
+            sphere_size = std::max(sphere_size, 0.003); // Smaller minimum size
+            sphere_size = std::min(sphere_size, 0.04);  // Smaller maximum size
 
             m_debug_sphere.draw_sphere(shader, surface_points[i], sphere_size);
         }
     }
 }
 
-// 场景 SDF：两个随时间移动的原始体并集
+// Scene SDF: union of two primitives moving over time
 double DynamicSDFObject::sdf_scene(const Vector3D& p, double t) const {
-    // 动态球体
+    // Dynamic sphere
     Vector3D sphere_center = Vector3D(sin(t * 0.5) * 2.0, 0.0, 0.0);
     double d_sphere = sdf_sphere(p - sphere_center, 1.0);
 
-    // 动态盒子
+    // Dynamic box
     Vector3D box_center = Vector3D(cos(t * 0.5) * 2.0, 0.0, 0.0);
     double d_box = sdf_box(p - box_center, Vector3D(0.8, 0.8, 0.8));
 
-    return std::min(d_sphere, d_box); // 并集
+    return std::min(d_sphere, d_box); // Union
 }
 
-// 数值法线
+// Numerical normal
 Vector3D DynamicSDFObject::sdf_normal(const Vector3D& p, double t) const {
     const double h = 1e-4;
     const Vector3D kx(h, 0, 0), ky(0, h, 0), kz(0, 0, h);
@@ -212,7 +212,7 @@ void DynamicSDFObject::collide(PointMass& pm) {
 
     const double mu = std::max(0.0, std::min(1.0, m_friction));
 
-    // 线段 CCD + SDF marching（保守步进）
+    // Line segment CCD + SDF marching (conservative stepping)
     Vector3D x0 = pm.last_position;
     Vector3D x1 = pm.position;
     Vector3D seg = x1 - x0;
@@ -221,9 +221,9 @@ void DynamicSDFObject::collide(PointMass& pm) {
         return;
     Vector3D dir = seg / L;
 
-    // marching 参数
+    // Marching parameters
     const int max_steps = 64;
-    const double eps = 1e-5; // 命中阈值
+    const double eps = 1e-5; // Hit threshold
 
     Vector3D p = x0;
     double traveled = 0.0;
@@ -247,7 +247,7 @@ void DynamicSDFObject::collide(PointMass& pm) {
     }
 
     if (!hit) {
-        // 兜底：若终点处在内部也算命中
+        // Fallback: if endpoint is inside, also count as hit
         if (sdf_scene(x1, m_time) <= 0.0) {
             hit = true;
             hit_p = x1;
@@ -255,12 +255,12 @@ void DynamicSDFObject::collide(PointMass& pm) {
     }
 
     if (hit) {
-        // 投影到表面
+        // Project to surface
         double d = sdf_scene(hit_p, m_time);
         Vector3D n = sdf_normal(hit_p, m_time);
-        Vector3D place = hit_p - d * n; // 更靠近表面的点
+        Vector3D place = hit_p - d * n; // Point closer to surface
 
-        // 摩擦响应（与现有实现保持一致的手感）
+        // Friction response (maintain consistent feel with existing implementation)
         pm.position = pm.last_position + (1.0 - mu) * (place - pm.last_position);
     }
 }

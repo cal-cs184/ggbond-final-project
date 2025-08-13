@@ -389,7 +389,7 @@ void ClothSimulator::drawContents() {
         shader.setUniform("u_cloth_tex_width", m_cloth_tex_width, false);
         shader.setUniform("u_cloth_tex_height", m_cloth_tex_height, false);
         drawVolumeRendering(shader);
-        // 在volume rendering模式下不渲染碰撞对象，只显示ray marching场景
+        // In volume rendering mode, don't render collision objects, only show ray marching scene
         break;
     }
 
@@ -400,7 +400,7 @@ void ClothSimulator::drawContents() {
             sphere->set_use_ccd(use_ccd_collision);
             sphere->set_use_ray_marching(use_ray_marching_collision);
         }
-        // 若是动态SDF对象，同步时间与开关
+        // If it's a dynamic SDF object, synchronize time and toggle
         if (auto* sdfObj = dynamic_cast<DynamicSDFObject*>(co)) {
             sdfObj->set_time(simulation_time);
             sdfObj->set_enabled(use_ray_marching_collision);

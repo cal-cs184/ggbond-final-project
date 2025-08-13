@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpectralCloth - Fabric simulation and volume rendering system</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         * {
             margin: 0;
@@ -32,49 +43,93 @@
 
         header {
             text-align: center;
-            padding: 40px 0;
+            padding: 60px 40px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 15px 15px 0 0;
             margin: -20px -20px 30px -20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
         }
 
         h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 3.2em;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
         }
 
         .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
-            margin-bottom: 20px;
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 30px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
         }
         
         .project-links {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
         
         .project-links p {
-            margin: 8px 0;
-            font-size: 0.95em;
+            margin: 0;
+            font-size: 1em;
             color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .project-links strong {
+            font-weight: 600;
+            min-width: 100px;
+            text-align: right;
+            flex-shrink: 0;
         }
         
         .project-links a {
             color: #ffd700;
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .project-links a:hover {
             color: #fff;
-            text-decoration: underline;
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
         section {
@@ -125,10 +180,19 @@
         .formula-block {
             background: #f0f8ff;
             border-left: 4px solid #28a745;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
             font-family: 'Times New Roman', serif;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .formula-block div {
+            margin: 10px 0;
+        }
+        
+        .formula-block .MathJax {
+            font-size: 1.1em;
         }
         
         .formula-block h5 {
@@ -306,8 +370,36 @@
                 padding: 15px;
             }
             
+            header {
+                padding: 40px 20px;
+            }
+            
             h1 {
-                font-size: 2em;
+                font-size: 2.2em;
+                letter-spacing: -0.3px;
+            }
+            
+            .subtitle {
+                font-size: 1.1em;
+            }
+            
+            .project-links {
+                padding: 20px;
+                margin-top: 20px;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .project-links p {
+                flex-direction: column;
+                gap: 8px;
+                align-items: center;
+            }
+            
+            .project-links strong {
+                min-width: auto;
+                text-align: center;
+                margin-bottom: 2px;
             }
             
             .feature-grid {
@@ -322,14 +414,15 @@
             <h1>Cloth Simulation with Ray Marching Volume Rendering and collision detection</h1>
             
             <div class="project-links">
-                <p><strong>Webpage:</strong><a href="https://cal-cs184.github.io/ggbond-final-project/" target="_blank">GitHub Repository</a></p>
+                <p><strong>Webpage:</strong><a href="https://cal-cs184.github.io/ggbond-final-project/" target="_blank">Webpage</a></p>
                 <p><strong>Demo Video:</strong><a href="https://drive.google.com/file/d/1FCitWz1yYilSj30fi_XJVgfw1Sk6cbxS/view?usp=sharing" target="_blank">Demo Video</a></p>
                 <p><strong>Slides:</strong><a href="https://docs.google.com/presentation/d/13iMc528H9VURbBB-L8lEzaiBUMRKlWE6tD9pN5pahIQ/edit?usp=sharing" target="_blank">Presentation Slides</a></p>
-                <p><strong>Github link：</strong><a href="https://github.com/cal-cs184/ggbond-final-project" target="_blank">github</a></p>
+                <p><strong>GitHub:</strong><a href="https://github.com/cal-cs184/ggbond-final-project" target="_blank">GitHub Repository</a></p>
             </div>
         </header>
 
         <section>
+            
             <h2>Abstract</h2>
             <p>This project implements the integration of cloth physics simulation with ray marching volume rendering and collision detection. 
                 Based on the CS184 Assignment 4 mass-spring cloth simulation framework, creating realistic volume effects in ray marching rendering.</p>
@@ -350,30 +443,39 @@
               
               <h4>Spring Force Calculation Formula</h4>
               <div class="formula-block">
-                  <h5>Hooke's Law (Hooke's Law)</h5>
-                  <p><strong>Spring Force:</strong> F = -k(x - x₀)</p>
+                  <h5>Hooke's Law</h5>
+                  <p><strong>Spring Force:</strong></p>
+                  <div style="text-align: center; margin: 15px 0;">
+                      $$\mathbf{F} = -k(\mathbf{x} - \mathbf{x}_0)$$
+                  </div>
                   <ul>
-                      <li>F: Spring force vector</li>
-                      <li>k: Spring stiffness coefficient</li>
-                      <li>x: Current spring length</li>
-                      <li>x₀: Spring natural length</li>
+                      <li>$\mathbf{F}$: Spring force vector</li>
+                      <li>$k$: Spring stiffness coefficient</li>
+                      <li>$\mathbf{x}$: Current spring length</li>
+                      <li>$\mathbf{x}_0$: Spring natural length</li>
                   </ul>
               </div>
               
               <div class="formula-block">
                   <h5>Damping Force</h5>
-                  <p><strong>Damping Force:</strong> F_d = -c(v₁ - v₂)</p>
+                  <p><strong>Damping Force:</strong></p>
+                  <div style="text-align: center; margin: 15px 0;">
+                      $$\mathbf{F}_d = -c(\mathbf{v}_1 - \mathbf{v}_2)$$
+                  </div>
                   <ul>
-                      <li>F_d: Damping force vector</li>
-                      <li>c: Damping coefficient</li>
-                      <li>v₁, v₂: Two particle velocity vectors</li>
+                      <li>$\mathbf{F}_d$: Damping force vector</li>
+                      <li>$c$: Damping coefficient</li>
+                      <li>$\mathbf{v}_1, \mathbf{v}_2$: Two particle velocity vectors</li>
                   </ul>
               </div>
               
               <div class="formula-block">
                   <h5>Total Spring Force</h5>
-                  <p><strong>Total Force:</strong> F_total = F_spring + F_damping</p>
-                  <p>F_total = -k(x - x₀) - c(v₁ - v₂)</p>
+                  <p><strong>Total Force:</strong></p>
+                  <div style="text-align: center; margin: 15px 0;">
+                      $$\mathbf{F}_{total} = \mathbf{F}_{spring} + \mathbf{F}_{damping}$$
+                      $$\mathbf{F}_{total} = -k(\mathbf{x} - \mathbf{x}_0) - c(\mathbf{v}_1 - \mathbf{v}_2)$$
+                  </div>
               </div>
               
               <h4>Three Types of Springs</h4>
@@ -403,13 +505,16 @@
               <h4>Motion Equations and Integration</h4>
               <div class="formula-block">
                   <h5>Newton's Second Law</h5>
-                  <p><strong>Motion Equation:</strong> ma = F_total</p>
-                  <p>Where F_total = F_spring + F_damping + F_gravity + F_collision</p>
+                  <p><strong>Motion Equation:</strong></p>
+                  <div style="text-align: center; margin: 15px 0;">
+                      $$m\mathbf{a} = \mathbf{F}_{total}$$
+                      $$\mathbf{F}_{total} = \mathbf{F}_{spring} + \mathbf{F}_{damping} + \mathbf{F}_{gravity} + \mathbf{F}_{collision}$$
+                  </div>
                   <ul>
-                      <li>m: Particle mass</li>
-                      <li>a: Acceleration vector</li>
-                      <li>F_gravity: Gravity F_g = mg</li>
-                      <li>F_collision: Collision force</li>
+                      <li>$m$: Particle mass</li>
+                      <li>$\mathbf{a}$: Acceleration vector</li>
+                                              <li>$\mathbf{F}_{gravity}$: Gravity $\mathbf{F}_g = m\mathbf{g}$</li>
+                        <li>$\mathbf{F}_{collision}$: Collision force</li>
                   </ul>
               </div>
               
@@ -432,27 +537,39 @@
                 <h4>Mathematical Foundation</h4>
                 <div class="formula-block">
                     <h5>Sphere SDF Function</h5>
-                    <p><strong>Signed Distance Field:</strong> SDF(p) = ||p - c|| - r</p>
+                    <p><strong>Signed Distance Field:</strong></p>
+                                      <div style="text-align: center; margin: 15px 0;">
+                      $$\text{SDF}(\mathbf{p}) = ||\mathbf{p} - \mathbf{c}|| - r$$
+                  </div>
                     <ul>
-                        <li>p: Point in 3D space</li>
-                        <li>c: Sphere center</li>
-                        <li>r: Sphere radius</li>
-                        <li>SDF(p) < 0: Point inside sphere</li>
-                        <li>SDF(p) = 0: Point on sphere surface</li>
-                        <li>SDF(p) > 0: Point outside sphere</li>
+                        <li>$\mathbf{p}$: Point in 3D space</li>
+                        <li>$\mathbf{c}$: Sphere center</li>
+                        <li>$r$: Sphere radius</li>
+                        <li>$\text{SDF}(\mathbf{p}) < 0$: Point inside sphere</li>
+                        <li>$\text{SDF}(\mathbf{p}) = 0$: Point on sphere surface</li>
+                        <li>$\text{SDF}(\mathbf{p}) > 0$: Point outside sphere</li>
                     </ul>
                 </div>
                 
                 <div class="formula-block">
                     <h5>Ray Marching Algorithm</h5>
-                    <p><strong>Ray Equation:</strong> r(t) = r₀ + t·d, t ∈ [0, L]</p>
-                    <p><strong>Marching Step:</strong> pᵢ₊₁ = pᵢ + min(step_size, |SDF(pᵢ)|)·d</p>
-                    <p><strong>Termination Condition:</strong> |SDF(pᵢ)| ≤ ε</p>
+                    <p><strong>Ray Equation:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{r}(t) = \mathbf{r}_0 + t \cdot \mathbf{d}, \quad t \in [0, L]$$
+                    </div>
+                    <p><strong>Marching Step:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{p}_{i+1} = \mathbf{p}_i + \min(\Delta s, |\text{SDF}(\mathbf{p}_i)|) \cdot \mathbf{d}$$
+                    </div>
+                    <p><strong>Termination Condition:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$|\text{SDF}(\mathbf{p}_i)| \leq \epsilon$$
+                    </div>
                     <ul>
-                        <li>r₀: Ray origin (last position)</li>
-                        <li>d: Ray direction (normalized)</li>
-                        <li>L: Ray length</li>
-                        <li>ε: Hit threshold (1e-6)</li>
+                        <li>$\mathbf{r}_0$: Ray origin (last position)</li>
+                        <li>$\mathbf{d}$: Ray direction (normalized)</li>
+                        <li>$L$: Ray length</li>
+                        <li>$\epsilon$: Hit threshold ($10^{-6}$)</li>
                     </ul>
                 </div>
                 
@@ -481,12 +598,12 @@
                 
                 <div class="formula-block">
                     <h6>Ray Marching Process</h6>
-                    <p><strong>Marching Loop:</strong> For i = 0 to max_steps:</p>
+                                            <p><strong>Marching Loop:</strong> For $i = 0$ to $N$:</p>
                     <ul>
-                        <li>Current position: pᵢ = r₀ + i·step_size·d</li>
-                        <li>SDF evaluation: sdfᵢ = SDF_scene(pᵢ, t)</li>
-                        <li>Hit detection: if |sdfᵢ| ≤ ε, collision found</li>
-                        <li>Adaptive step: step = min(step_size, |sdfᵢ|)</li>
+                        <li>Current position: $\mathbf{p}_i = \mathbf{r}_0 + i \cdot \Delta s \cdot \mathbf{d}$</li>
+                        <li>SDF evaluation: $\text{sdf}_i = \text{SDF}_{scene}(\mathbf{p}_i, t)$</li>
+                        <li>Hit detection: if $|\text{sdf}_i| \leq \epsilon$, collision found</li>
+                        <li>Adaptive step: $\text{step} = \min(\Delta s, |\text{sdf}_i|)$</li>
                     </ul>
                 </div>
                 
@@ -502,36 +619,50 @@
                 <h4>Collision Detection Physical Formulas</h4>
                 <div class="formula-block">
                     <h5>Sphere Collision Detection</h5>
-                    <p><strong>Distance Function:</strong> d(p, sphere) = ||p - c|| - r</p>
+                    <p><strong>Distance Function:</strong></p>
+                                      <div style="text-align: center; margin: 15px 0;">
+                      $$d(\mathbf{p}, \text{sphere}) = ||\mathbf{p} - \mathbf{c}|| - r$$
+                  </div>
                     <ul>
-                        <li>p: Particle position</li>
-                        <li>c: Sphere center position</li>
-                        <li>r: Sphere radius</li>
-                        <li>d < 0: Particle inside sphere</li>
-                        <li>d = 0: Particle on sphere surface</li>
-                        <li>d > 0: Particle outside sphere</li>
+                        <li>$\mathbf{p}$: Particle position</li>
+                        <li>$\mathbf{c}$: Sphere center position</li>
+                        <li>$r$: Sphere radius</li>
+                        <li>$d < 0$: Particle inside sphere</li>
+                        <li>$d = 0$: Particle on sphere surface</li>
+                        <li>$d > 0$: Particle outside sphere</li>
                     </ul>
                 </div>
                 
                 <div class="formula-block">
                     <h5>Collision Response</h5>
-                    <p><strong>Post-collision Position:</strong> p_new = c + r * normalize(p - c)</p>
-                    <p><strong>Velocity Reflection:</strong> v_new = v - 2(v·n)n</p>
+                    <p><strong>Post-collision Position:</strong></p>
+                                      <div style="text-align: center; margin: 15px 0;">
+                      $$\mathbf{p}_{new} = \mathbf{c} + r \cdot \frac{\mathbf{p} - \mathbf{c}}{||\mathbf{p} - \mathbf{c}||}$$
+                  </div>
+                    <p><strong>Velocity Reflection:</strong></p>
+                                      <div style="text-align: center; margin: 15px 0;">
+                      $$\mathbf{v}_{new} = \mathbf{v} - 2(\mathbf{v} \cdot \mathbf{n})\mathbf{n}$$
+                  </div>
                     <ul>
-                        <li>n: Collision point normal vector</li>
-                        <li>μ: Friction coefficient (usually μ = 0.3)</li>
+                        <li>$\mathbf{n}$: Collision point normal vector</li>
+                        <li>$\mu$: Friction coefficient (usually $\mu = 0.3$)</li>
                     </ul>
                 </div>
                 
                 <div class="formula-block">
                     <h5>Continuous Collision Detection (CCD)</h5>
                     <p><strong>Line-sphere intersection:</strong></p>
-                    <p>Given line segment p₀→p₁ and sphere (c, r)</p>
-                    <p>Solve quadratic equation: ||p₀ + t(p₁-p₀) - c||² = r²</p>
-                    <p><strong>Trigger Condition:</strong> L > 0.3R</p>
+                    <p>Given line segment $\mathbf{p}_0 \rightarrow \mathbf{p}_1$ and sphere $(\mathbf{c}, r)$</p>
+                                      <div style="text-align: center; margin: 15px 0;">
+                      $$||\mathbf{p}_0 + t(\mathbf{p}_1 - \mathbf{p}_0) - \mathbf{c}||^2 = r^2$$
+                  </div>
+                    <p><strong>Trigger Condition:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$L > 0.3R$$
+                    </div>
                     <ul>
-                        <li>L: Particle movement distance</li>
-                        <li>R: Sphere radius</li>
+                        <li>$L$: Particle movement distance</li>
+                        <li>$R$: Sphere radius</li>
                     </ul>
                 </div>
 
@@ -543,12 +674,15 @@
                 
                 <div class="formula-block">
                     <h6>Scene SDF Definition</h6>
-                    <p><strong>Dynamic Scene:</strong> SDF_scene(p, t) = min(SDF_sphere(p, c_sphere(t), r), SDF_box(p, c_box(t), b))</p>
+                    <p><strong>Dynamic Scene:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\text{SDF}_{scene}(\mathbf{p}, t) = \min(\text{SDF}_{sphere}(\mathbf{p}, \mathbf{c}_{sphere}(t), r), \text{SDF}_{box}(\mathbf{p}, \mathbf{c}_{box}(t), \mathbf{b}))$$
+                    </div>
                     <ul>
-                        <li>c_sphere(t) = [sin(0.5t)·2, 0, 0]: Moving sphere center</li>
-                        <li>c_box(t) = [cos(0.5t)·2, 0, 0]: Moving box center</li>
-                        <li>r = 1.0: Sphere radius</li>
-                        <li>b = [0.8, 0.8, 0.8]: Box dimensions</li>
+                        <li>$\mathbf{c}_{sphere}(t) = [\sin(0.5t) \cdot 2, 0, 0]$: Moving sphere center</li>
+                        <li>$\mathbf{c}_{box}(t) = [\cos(0.5t) \cdot 2, 0, 0]$: Moving box center</li>
+                        <li>$r = 1.0$: Sphere radius</li>
+                        <li>$\mathbf{b} = [0.8, 0.8, 0.8]$: Box dimensions</li>
                     </ul>
                 </div>
                 
@@ -557,12 +691,18 @@
                 
                 <div class="formula-block">
                     <h6>Surface Projection and Response</h6>
-                    <p><strong>Surface Projection:</strong> p_surface = p_hit - SDF(p_hit)·∇SDF(p_hit)/||∇SDF(p_hit)||</p>
-                    <p><strong>Collision Response:</strong> p_new = p_last + (1-μ)·(p_surface - p_last)</p>
+                    <p><strong>Surface Projection:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{p}_{surface} = \mathbf{p}_{hit} - \text{SDF}(\mathbf{p}_{hit}) \cdot \frac{\nabla\text{SDF}(\mathbf{p}_{hit})}{||\nabla\text{SDF}(\mathbf{p}_{hit})||}$$
+                    </div>
+                    <p><strong>Collision Response:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{p}_{new} = \mathbf{p}_{last} + (1-\mu) \cdot (\mathbf{p}_{surface} - \mathbf{p}_{last})$$
+                    </div>
                     <ul>
-                        <li>μ: Friction coefficient (0 ≤ μ ≤ 1)</li>
-                        <li>p_hit: Collision point</li>
-                        <li>p_surface: Projected surface position</li>
+                        <li>$\mu$: Friction coefficient ($0 \leq \mu \leq 1$)</li>
+                        <li>$\mathbf{p}_{hit}$: Collision point</li>
+                        <li>$\mathbf{p}_{surface}$: Projected surface position</li>
                     </ul>
                 </div>
             </div>
@@ -575,26 +715,47 @@
                 <h4>Mathematical Foundation</h4>
                 <div class="formula-block">
                     <h5>Scene SDF Functions</h5>
-                    <p><strong>Sphere SDF:</strong> SDF_sphere(p, c, r) = ||p - c|| - r</p>
-                    <p><strong>Box SDF:</strong> SDF_box(p, c, b) = ||max(|p - c| - b, 0)|| + min(max(|p - c| - b), 0)</p>
-                    <p><strong>Union Operation:</strong> SDF_union(d₁, d₂) = min(d₁, d₂)</p>
-                    <p><strong>Dynamic Scene:</strong> SDF_scene(p, t) = min(SDF_sphere(p, c_sphere(t), r), SDF_box(p, c_box(t), b))</p>
+                    <p><strong>Sphere SDF:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\text{SDF}_{sphere}(\mathbf{p}, \mathbf{c}, r) = ||\mathbf{p} - \mathbf{c}|| - r$$
+                    </div>
+                    <p><strong>Box SDF:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\text{SDF}_{box}(\mathbf{p}, \mathbf{c}, \mathbf{b}) = ||\max(|\mathbf{p} - \mathbf{c}| - \mathbf{b}, 0)|| + \min(\max(|\mathbf{p} - \mathbf{c}| - \mathbf{b}), 0)$$
+                    </div>
+                    <p><strong>Union Operation:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\text{SDF}_{union}(d_1, d_2) = \min(d_1, d_2)$$
+                    </div>
+                    <p><strong>Dynamic Scene:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\text{SDF}_{scene}(\mathbf{p}, t) = \min(\text{SDF}_{sphere}(\mathbf{p}, \mathbf{c}_{sphere}(t), r), \text{SDF}_{box}(\mathbf{p}, \mathbf{c}_{box}(t), \mathbf{b}))$$
+                    </div>
                     <ul>
-                        <li>c_sphere(t) = [sin(0.5t)·2, 0, 0]: Moving sphere center</li>
-                        <li>c_box(t) = [cos(0.5t)·2, 0, 0]: Moving box center</li>
-                        <li>r = 1.0: Sphere radius</li>
-                        <li>b = [0.8, 0.8, 0.8]: Box dimensions</li>
+                        <li>$\mathbf{c}_{sphere}(t) = [\sin(0.5t) \cdot 2, 0, 0]$: Moving sphere center</li>
+                        <li>$\mathbf{c}_{box}(t) = [\cos(0.5t) \cdot 2, 0, 0]$: Moving box center</li>
+                        <li>$r = 1.0$: Sphere radius</li>
+                        <li>$\mathbf{b} = [0.8, 0.8, 0.8]$: Box dimensions</li>
                     </ul>
                 </div>
                 
                 <div class="formula-block">
                     <h5>SDF Normal Calculation</h5>
                     <p><strong>Finite Difference Method:</strong></p>
-                    <p>∇SDF(p) ≈ [SDF(p + h·i) - SDF(p - h·i), SDF(p + h·j) - SDF(p - h·j), SDF(p + h·k) - SDF(p - h·k)]</p>
-                    <p><strong>Normal Vector:</strong> n = normalize(∇SDF(p))</p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\nabla\text{SDF}(\mathbf{p}) \approx \begin{bmatrix}
+                        \text{SDF}(\mathbf{p} + h \cdot \mathbf{i}) - \text{SDF}(\mathbf{p} - h \cdot \mathbf{i}) \\
+                        \text{SDF}(\mathbf{p} + h \cdot \mathbf{j}) - \text{SDF}(\mathbf{p} - h \cdot \mathbf{j}) \\
+                        \text{SDF}(\mathbf{p} + h \cdot \mathbf{k}) - \text{SDF}(\mathbf{p} - h \cdot \mathbf{k})
+                        \end{bmatrix}$$
+                    </div>
+                    <p><strong>Normal Vector:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{n} = \frac{\nabla\text{SDF}(\mathbf{p})}{||\nabla\text{SDF}(\mathbf{p})||}$$
+                    </div>
                     <ul>
-                        <li>h = 1e-4: Small perturbation</li>
-                        <li>i, j, k: Unit vectors in x, y, z directions</li>
+                        <li>$h = 10^{-4}$: Small perturbation</li>
+                        <li>$\mathbf{i}, \mathbf{j}, \mathbf{k}$: Unit vectors in x, y, z directions</li>
                     </ul>
                 </div>
                 
@@ -607,11 +768,17 @@
                 
                 <div class="formula-block">
                     <h5>Newton's Method Surface Projection</h5>
-                    <p><strong>Iterative Projection:</strong> pᵢ₊₁ = pᵢ - SDF(pᵢ)·∇SDF(pᵢ)/||∇SDF(pᵢ)||²</p>
-                    <p><strong>Convergence Criterion:</strong> |SDF(pᵢ)| < threshold</p>
+                    <p><strong>Iterative Projection:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$\mathbf{p}_{i+1} = \mathbf{p}_i - \text{SDF}(\mathbf{p}_i) \cdot \frac{\nabla\text{SDF}(\mathbf{p}_i)}{||\nabla\text{SDF}(\mathbf{p}_i)||^2}$$
+                    </div>
+                    <p><strong>Convergence Criterion:</strong></p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$|\text{SDF}(\mathbf{p}_i)| < \tau$$
+                    </div>
                     <ul>
-                        <li>p₀: Initial random sample</li>
-                        <li>threshold = 0.02: Surface proximity threshold</li>
+                        <li>$\mathbf{p}_0$: Initial random sample</li>
+                        <li>$\tau = 0.02$: Surface proximity threshold</li>
                         <li>Max iterations: 5</li>
                     </ul>
                 </div>
@@ -815,7 +982,7 @@
 
 
         <section class="team-section">
-            <h2>Contributions from each team member</h2>
+            <h2 style="color: white;">Contributions from each team member</h2>
             <div class="team-member">
                 <h4>Isaac Gonzalez</h4>
                 <p><strong>Main Contribution:</strong> Initial architecture construction of the project, research and test possibilities of specific directions. Slides and video production.</p>
